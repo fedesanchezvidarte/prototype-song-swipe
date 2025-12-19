@@ -105,6 +105,7 @@ dependencies {
 
     // Coil for image loading (Compose)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
 
     // Testing - Unit Tests
     testImplementation(libs.junit)

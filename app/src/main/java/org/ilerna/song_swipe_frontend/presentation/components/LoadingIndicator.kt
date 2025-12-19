@@ -10,23 +10,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.presentation.theme.NeonGradientColors
 
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier
 ) {
     // SongSwipe neon gradient
-    val gradient = Brush.linearGradient(
-        listOf(
-            Color(0xFFF69752),
-            Color(0xFFF35987),
-            Color(0xFF736FE7),
-            Color(0xFF20CBD1)
-        )
-    )
+    val gradient = Brush.linearGradient(NeonGradientColors)
 
     Box(
         modifier = modifier.fillMaxSize(),

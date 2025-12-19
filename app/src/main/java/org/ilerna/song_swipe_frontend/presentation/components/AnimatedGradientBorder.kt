@@ -1,6 +1,5 @@
 package org.ilerna.song_swipe_frontend.presentation.components
 
-import GradienteNeon
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -12,6 +11,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import org.ilerna.song_swipe_frontend.presentation.theme.AnimationConstants
+import org.ilerna.song_swipe_frontend.presentation.theme.NeonGradientColors
 import org.ilerna.song_swipe_frontend.presentation.theme.Sizes
 
 /**
@@ -37,7 +37,7 @@ fun AnimatedGradientBorder(
 
     Canvas(modifier = modifier) {
         val brush = Brush.linearGradient(
-            colors = GradienteNeon + GradienteNeon.first(),
+            colors = NeonGradientColors + NeonGradientColors.first(),
             start = Offset(-size.width + offset, 0f),
             end = Offset(offset, size.height)
         )

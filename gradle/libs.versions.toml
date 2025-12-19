@@ -22,6 +22,7 @@ postgrestKt = "3.2.6"
 retrofit = "3.0.0"
 spotifyAuth = "3.0.0"
 browser = "1.9.0"
+uiTextGoogleFonts = "1.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,6 +53,7 @@ postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 spotify-auth = { group = "com.spotify.android", name = "auth", version.ref = "spotifyAuth" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
