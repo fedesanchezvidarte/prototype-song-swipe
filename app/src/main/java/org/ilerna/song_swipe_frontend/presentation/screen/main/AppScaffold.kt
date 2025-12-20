@@ -12,7 +12,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
 import org.ilerna.song_swipe_frontend.domain.model.User
 import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavItem
 import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavigationBar
@@ -28,14 +27,12 @@ import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
  *
  * @param user The current logged-in user
  * @param settingsViewModel ViewModel for managing settings state
- * @param onThemeChanged Callback when theme is changed
  * @param modifier Modifier for the screen
  */
 @Composable
 fun AppScaffold(
     user: User?,
     settingsViewModel: SettingsViewModel,
-    onThemeChanged: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var currentRoute by rememberSaveable { mutableStateOf(BottomNavItem.Home.route) }
@@ -73,8 +70,7 @@ fun AppScaffold(
                 }
                 BottomNavItem.Settings.route -> {
                     SettingsScreen(
-                        viewModel = settingsViewModel,
-                        onThemeChanged = onThemeChanged
+                        viewModel = settingsViewModel
                     )
                 }
             }

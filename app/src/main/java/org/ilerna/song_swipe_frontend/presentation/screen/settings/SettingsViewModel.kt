@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISettingsDataStore
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.SettingsDataStore
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
 
@@ -15,7 +16,7 @@ import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMod
  * Persists settings using DataStore Preferences
  */
 class SettingsViewModel(
-    private val settingsDataStore: SettingsDataStore
+    private val settingsDataStore: ISettingsDataStore
 ) : ViewModel() {
     
     /**
