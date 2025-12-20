@@ -111,12 +111,7 @@ fun LoginScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
 
-                    is AuthState.Success -> {
-                        SuccessContent(
-                            authorizationCode = authState.authorizationCode
-                        )
-                    }
-
+                    // Success state is handled by MainActivity navigation
                     else -> Unit
                 }
             }
@@ -124,33 +119,6 @@ fun LoginScreen(
     }
 }
 
-
-/*  SUCCESS STATE COMPONENT */
-@Composable
-private fun SuccessContent(
-    authorizationCode: String
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        Text(
-            text = "Login successfully",
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Authorization Code:", style = MaterialTheme.typography.labelMedium
-        )
-
-        Text(
-            text = authorizationCode,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-    }
-}
 
 /**
  * Composable that displays an error after a failed LOGIN attempt.
@@ -260,14 +228,5 @@ fun PreviewLoginError() {
     SongSwipeTheme {
         LoginScreen(
             authState = AuthState.Error("Login failed"), onLoginClick = {}, onResetState = {})
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewLoginSuccess() {
-    SongSwipeTheme {
-        LoginScreen(
-            authState = AuthState.Success("code123"), onLoginClick = {}, onResetState = {})
     }
 }
