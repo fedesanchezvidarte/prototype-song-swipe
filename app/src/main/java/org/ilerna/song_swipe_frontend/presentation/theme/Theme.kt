@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -101,11 +102,17 @@ val unspecified_scheme = ColorFamily(
 
 @Composable
 fun SongSwipeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable() () -> Unit
 ) {
+  val darkTheme = when (themeMode) {
+      ThemeMode.DARK -> true
+      ThemeMode.LIGHT -> false
+      ThemeMode.SYSTEM -> isSystemInDarkTheme()
+  }
+  
   val colorScheme = when {
       dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
           val context = LocalContext.current

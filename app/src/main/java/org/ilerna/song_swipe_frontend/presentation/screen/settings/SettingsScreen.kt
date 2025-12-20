@@ -2,86 +2,163 @@ package org.ilerna.song_swipe_frontend.presentation.screen.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 
 /**
- * Settings Screen - Placeholder for future settings functionality.
- * Will include user preferences, account settings, and app configuration.
+ * Settings Screen - User preferences and app configuration.
+ * Includes theme mode selection with DataStore persistence.
+ * 
+ * @param viewModel ViewModel for managing settings state
+ * @param onThemeChanged Callback when theme is changed
+ * @param modifier Optional modifier
  */
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
+    onThemeChanged: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    Box(
+    val currentTheme by viewModel.currentTheme.collectAsState()
+    val colors = MaterialTheme.colorScheme
+
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(Spacing.spaceLg),
-        contentAlignment = Alignment.Center
+            .padding(Spacing.spaceLg)
+    ) {
+        // Header
+        Text(
+            text = "Settings",
+            style = MaterialTheme.typography.headlineMedium,
+            color = colors.primary,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = Spacing.spaceMd)
+        )
+
+        // Theme Setting
+        SettingItemWithDropdown(
+            title = "Theme",
+            description = "Select the theme for the app",
+            selectedOption = currentTheme,
+            options = ThemeMode.entries,
+            onOptionSelected = { theme ->
+                viewModel.setTheme(theme)
+                onThemeChanged(theme)
+            },
+            contentDescription = "Select theme"
+        )
+    }
+}
+
+/**
+ * SettingItemWithDropdown - Reusable component for a setting with dropdown selector
+ * 
+ * @param title The title of the setting
+ * @param description The description of the setting
+ * @param selectedOption The currently selected option
+ * @param options List of all available options
+ * @param onOptionSelected Callback when an option is selected
+ * @param contentDescription Content description for accessibility
+ * @param modifier Optional modifier
+ */
+@Composable
+fun SettingItemWithDropdown(
+    title: String,
+    description: String,
+    selectedOption: ThemeMode,
+    options: List<ThemeMode>,
+    onOptionSelected: (ThemeMode) -> Unit,
+    contentDescription: String = "Select option",
+    modifier: Modifier = Modifier
+) {
+    val colors = MaterialTheme.colorScheme
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.weight(1f)
         ) {
-            // Placeholder Icon
-            Icon(
-                imageVector = Icons.Outlined.Settings,
-                contentDescription = "Settings",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.spaceMd))
-
-            // Title
             Text(
-                text = "Settings",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.onBackground
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = colors.onSurface,
+                fontWeight = FontWeight.SemiBold
             )
-
-            Spacer(modifier = Modifier.height(Spacing.spaceSm))
-
-            // Description
             Text(
-                text = "Customize your experience, manage your account, and configure app preferences.",
+                text = description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
+                color = colors.onSurface.copy(alpha = 0.7f)
             )
+        }
 
-            Spacer(modifier = Modifier.height(Spacing.spaceXl))
-
-            // Coming soon badge
+        // Dropdown Button
+        TextButton(
+            onClick = { expanded = true }
+        ) {
             Text(
-                text = "🚧 Coming Soon",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                color = MaterialTheme.colorScheme.secondary
+                text = selectedOption.getDisplayName(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.primary
             )
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = contentDescription,
+                tint = colors.primary
+            )
+        }
+
+        // Dropdown Menu
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option.getDisplayName(),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }
+                )
+            }
         }
     }
 }
@@ -91,6 +168,30 @@ fun SettingsScreen(
 @Composable
 fun PreviewSettingsScreen() {
     SongSwipeTheme {
-        SettingsScreen()
+        // Preview without ViewModel - just show structure
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(Spacing.spaceLg)
+        ) {
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = Spacing.spaceMd)
+            )
+            
+            SettingItemWithDropdown(
+                title = "Theme",
+                description = "Select the theme for the app",
+                selectedOption = ThemeMode.SYSTEM,
+                options = ThemeMode.entries,
+                onOptionSelected = {},
+                contentDescription = "Select theme"
+            )
+        }
     }
 }
+
