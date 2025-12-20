@@ -18,6 +18,7 @@ import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavigationBa
 import org.ilerna.song_swipe_frontend.presentation.screen.home.HomeScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.playlists.PlaylistsScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsScreen
+import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModel
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 
 /**
@@ -25,11 +26,13 @@ import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
  * This is the main container that hosts Home, Playlists, Settings ... screens.
  *
  * @param user The current logged-in user
+ * @param settingsViewModel ViewModel for managing settings state
  * @param modifier Modifier for the screen
  */
 @Composable
 fun AppScaffold(
     user: User?,
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
     var currentRoute by rememberSaveable { mutableStateOf(BottomNavItem.Home.route) }
@@ -66,33 +69,11 @@ fun AppScaffold(
                     PlaylistsScreen()
                 }
                 BottomNavItem.Settings.route -> {
-                    SettingsScreen()
+                    SettingsScreen(
+                        viewModel = settingsViewModel
+                    )
                 }
             }
         }
-    }
-}
-
-/* PREVIEWS */
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewAppScaffold() {
-    SongSwipeTheme {
-        AppScaffold(
-            user = User(
-                id = "1",
-                email = "user@example.com",
-                displayName = "John Doe",
-                profileImageUrl = null
-            )
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewAppScaffoldNoUser() {
-    SongSwipeTheme {
-        AppScaffold(user = null)
     }
 }

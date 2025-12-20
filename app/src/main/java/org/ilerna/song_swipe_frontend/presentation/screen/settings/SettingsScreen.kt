@@ -1,88 +1,62 @@
 package org.ilerna.song_swipe_frontend.presentation.screen.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
+import org.ilerna.song_swipe_frontend.presentation.components.SettingItemWithDropdown
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 
 /**
- * Settings Screen - Placeholder for future settings functionality.
- * Will include user preferences, account settings, and app configuration.
+ * Settings Screen - User preferences and app configuration.
+ * Includes theme mode selection with DataStore persistence.
+ * 
+ * @param viewModel ViewModel for managing settings state
+ * @param modifier Optional modifier
  */
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    val currentTheme by viewModel.currentTheme.collectAsState()
+    val colors = MaterialTheme.colorScheme
+
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(Spacing.spaceLg),
-        contentAlignment = Alignment.Center
+            .padding(Spacing.spaceLg)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Placeholder Icon
-            Icon(
-                imageVector = Icons.Outlined.Settings,
-                contentDescription = "Settings",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-            )
+        // Header
+        Text(
+            text = "Settings",
+            style = MaterialTheme.typography.headlineMedium,
+            color = colors.primary,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = Spacing.spaceMd)
+        )
 
-            Spacer(modifier = Modifier.height(Spacing.spaceMd))
-
-            // Title
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.spaceSm))
-
-            // Description
-            Text(
-                text = "Customize your experience, manage your account, and configure app preferences.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.spaceXl))
-
-            // Coming soon badge
-            Text(
-                text = "🚧 Coming Soon",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
+        // Theme Setting
+        SettingItemWithDropdown(
+            title = "Theme",
+            description = "Select the theme for the app",
+            selectedOption = currentTheme,
+            options = ThemeMode.entries.toList(),
+            optionLabel = { it.getDisplayName() },
+            onOptionSelected = { theme -> viewModel.setTheme(theme) },
+            contentDescription = "Select theme"
+        )
     }
 }
 
@@ -91,6 +65,31 @@ fun SettingsScreen(
 @Composable
 fun PreviewSettingsScreen() {
     SongSwipeTheme {
-        SettingsScreen()
+        // Preview without ViewModel - just show structure
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(Spacing.spaceLg)
+        ) {
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = Spacing.spaceMd)
+            )
+            
+            SettingItemWithDropdown(
+                title = "Theme",
+                description = "Select the theme for the app",
+                selectedOption = ThemeMode.SYSTEM,
+                options = ThemeMode.entries.toList(),
+                optionLabel = { it.getDisplayName() },
+                onOptionSelected = {},
+                contentDescription = "Select theme"
+            )
+        }
     }
 }
+
