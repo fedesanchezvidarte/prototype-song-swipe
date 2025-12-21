@@ -2,11 +2,14 @@ package org.ilerna.song_swipe_frontend.core.network.interceptors
 
 import android.util.Log
 import io.mockk.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISpotifyTokenDataStore
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -19,6 +22,7 @@ class SpotifyAuthInterceptorTest {
 
     private lateinit var interceptor: SpotifyAuthInterceptor
     private lateinit var mockChain: Interceptor.Chain
+    private lateinit var mockTokenDataStore: ISpotifyTokenDataStore
 
     @Before
     fun setup() {
@@ -29,12 +33,40 @@ class SpotifyAuthInterceptorTest {
         
         mockChain = mockk(relaxed = true)
         interceptor = SpotifyAuthInterceptor()
+        
+        // Create a mock DataStore for testing
+        mockTokenDataStore = createMockTokenDataStore()
+        SpotifyTokenHolder.reset()
+        SpotifyTokenHolder.initialize(mockTokenDataStore)
+    }
+    
+    private fun createMockTokenDataStore(): ISpotifyTokenDataStore {
+        val accessTokenFlow = MutableStateFlow<String?>(null)
+        val refreshTokenFlow = MutableStateFlow<String?>(null)
+        
+        return object : ISpotifyTokenDataStore {
+            override val accessToken: Flow<String?> = accessTokenFlow
+            override val refreshToken: Flow<String?> = refreshTokenFlow
+            
+            override suspend fun setTokens(accessToken: String?, refreshToken: String?) {
+                accessTokenFlow.value = accessToken
+                refreshTokenFlow.value = refreshToken
+            }
+            
+            override suspend fun getAccessTokenSync(): String? = accessTokenFlow.value
+            override suspend fun getRefreshTokenSync(): String? = refreshTokenFlow.value
+            override suspend fun hasToken(): Boolean = !accessTokenFlow.value.isNullOrEmpty()
+            override suspend fun clear() {
+                accessTokenFlow.value = null
+                refreshTokenFlow.value = null
+            }
+        }
     }
 
     @After
     fun tearDown() = runTest {
         // Clean up tokens after each test
-        SpotifyTokenHolder.clear()
+        SpotifyTokenHolder.reset()
         unmockkStatic(Log::class)
     }
 
@@ -67,8 +99,8 @@ class SpotifyAuthInterceptorTest {
 
     @Test
     fun `intercept should not add Authorization header when token is null`() = runTest {
-        // Given - no token set (SpotifyTokenHolder is empty)
-        SpotifyTokenHolder.clear()
+        // Given - no token set (SpotifyTokenHolder cache is empty)
+        SpotifyTokenHolder.clearCacheOnly()
         
         val originalRequest = Request.Builder()
             .url("https://api.spotify.com/v1/me")

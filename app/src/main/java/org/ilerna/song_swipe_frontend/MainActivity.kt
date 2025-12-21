@@ -2,6 +2,7 @@ package org.ilerna.song_swipe_frontend
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
@@ -59,10 +61,17 @@ class MainActivity : ComponentActivity() {
         )[SettingsViewModel::class.java]
         
         // Spotify Token DataStore - initialize holder and load persisted tokens
+        // Using runBlocking to ensure tokens are loaded before any API calls.
+        // This prevents race conditions where SpotifyAuthInterceptor might be
+        // called before tokens are restored from DataStore.
+        // Note: initialize() is idempotent, safe to call on configuration changes.
         spotifyTokenDataStore = SpotifyTokenDataStore(applicationContext)
         SpotifyTokenHolder.initialize(spotifyTokenDataStore)
-        lifecycleScope.launch {
-            SpotifyTokenHolder.loadFromDataStore()
+        runBlocking {
+            val loaded = SpotifyTokenHolder.loadFromDataStore()
+            if (!loaded) {
+                Log.w("MainActivity", "Failed to load Spotify tokens from DataStore")
+            }
         }
         
         // Auth dependencies
