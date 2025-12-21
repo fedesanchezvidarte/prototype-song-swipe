@@ -7,9 +7,12 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.user.UserInfo
 import io.github.jan.supabase.auth.user.UserSession
 import io.mockk.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.put
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISpotifyTokenDataStore
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.junit.After
 import org.junit.Before
@@ -26,11 +29,14 @@ class SupabaseAuthRepositoryTest {
 
     private lateinit var repository: SupabaseAuthRepository
     private lateinit var mockAuth: Auth
+    private lateinit var mockTokenDataStore: ISpotifyTokenDataStore
 
     @Before
     fun setup() {
-        // Clear SpotifyTokenHolder before each test
-        SpotifyTokenHolder.clear()
+        // Create a mock DataStore and initialize SpotifyTokenHolder
+        mockTokenDataStore = createMockTokenDataStore()
+        SpotifyTokenHolder.reset()
+        SpotifyTokenHolder.initialize(mockTokenDataStore)
         
         // Mock Android Log to prevent "Method not mocked" errors
         mockkStatic(Log::class)
@@ -51,11 +57,34 @@ class SupabaseAuthRepositoryTest {
         repository = SupabaseAuthRepository(mockSupabaseClient)
     }
     
+    private fun createMockTokenDataStore(): ISpotifyTokenDataStore {
+        val accessTokenFlow = MutableStateFlow<String?>(null)
+        val refreshTokenFlow = MutableStateFlow<String?>(null)
+        
+        return object : ISpotifyTokenDataStore {
+            override val accessToken: Flow<String?> = accessTokenFlow
+            override val refreshToken: Flow<String?> = refreshTokenFlow
+            
+            override suspend fun setTokens(accessToken: String?, refreshToken: String?) {
+                accessTokenFlow.value = accessToken
+                refreshTokenFlow.value = refreshToken
+            }
+            
+            override suspend fun getAccessTokenSync(): String? = accessTokenFlow.value
+            override suspend fun getRefreshTokenSync(): String? = refreshTokenFlow.value
+            override suspend fun hasToken(): Boolean = !accessTokenFlow.value.isNullOrEmpty()
+            override suspend fun clear() {
+                accessTokenFlow.value = null
+                refreshTokenFlow.value = null
+            }
+        }
+    }
+    
     @After
     fun tearDown() {
         unmockkStatic("io.github.jan.supabase.auth.AuthKt")
         unmockkStatic(Log::class)
-        SpotifyTokenHolder.clear()
+        SpotifyTokenHolder.reset()
     }
 
     // ==================== handleAuthCallback - URL Parsing Tests ====================
