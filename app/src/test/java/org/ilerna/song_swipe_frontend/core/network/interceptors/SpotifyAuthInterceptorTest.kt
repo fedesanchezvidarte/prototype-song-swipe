@@ -2,6 +2,7 @@ package org.ilerna.song_swipe_frontend.core.network.interceptors
 
 import android.util.Log
 import io.mockk.*
+import kotlinx.coroutines.test.runTest
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -28,13 +29,10 @@ class SpotifyAuthInterceptorTest {
         
         mockChain = mockk(relaxed = true)
         interceptor = SpotifyAuthInterceptor()
-        
-        // Clear any tokens before each test
-        SpotifyTokenHolder.clear()
     }
 
     @After
-    fun tearDown() {
+    fun tearDown() = runTest {
         // Clean up tokens after each test
         SpotifyTokenHolder.clear()
         unmockkStatic(Log::class)
@@ -43,7 +41,7 @@ class SpotifyAuthInterceptorTest {
     // ==================== Token Injection Tests ====================
 
     @Test
-    fun `intercept should add Authorization header when token is available`() {
+    fun `intercept should add Authorization header when token is available`() = runTest {
         // Given
         val testToken = "spotify_access_token_123"
         SpotifyTokenHolder.setTokens(testToken, null)
@@ -68,8 +66,10 @@ class SpotifyAuthInterceptorTest {
     }
 
     @Test
-    fun `intercept should not add Authorization header when token is null`() {
+    fun `intercept should not add Authorization header when token is null`() = runTest {
         // Given - no token set (SpotifyTokenHolder is empty)
+        SpotifyTokenHolder.clear()
+        
         val originalRequest = Request.Builder()
             .url("https://api.spotify.com/v1/me")
             .build()
@@ -90,7 +90,7 @@ class SpotifyAuthInterceptorTest {
     }
 
     @Test
-    fun `intercept should not add Authorization header when token is empty string`() {
+    fun `intercept should not add Authorization header when token is empty string`() = runTest {
         // Given
         SpotifyTokenHolder.setTokens("", null)
         
@@ -116,7 +116,7 @@ class SpotifyAuthInterceptorTest {
     // ==================== Token Management Tests ====================
 
     @Test
-    fun `intercept should use updated token after clear and set`() {
+    fun `intercept should use updated token after clear and set`() = runTest {
         // Given - first set a token
         SpotifyTokenHolder.setTokens("old_token", null)
         SpotifyTokenHolder.clear()
@@ -142,7 +142,7 @@ class SpotifyAuthInterceptorTest {
     }
 
     @Test
-    fun `intercept should preserve original request URL and method`() {
+    fun `intercept should preserve original request URL and method`() = runTest {
         // Given
         SpotifyTokenHolder.setTokens("test_token", null)
         

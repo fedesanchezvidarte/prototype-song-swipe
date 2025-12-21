@@ -13,8 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
 import org.ilerna.song_swipe_frontend.core.network.interceptors.SpotifyAuthInterceptor
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.SettingsDataStore
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.SpotifyTokenDataStore
 import org.ilerna.song_swipe_frontend.data.datasource.remote.api.SpotifyApi
 import org.ilerna.song_swipe_frontend.data.datasource.remote.impl.SpotifyDataSourceImpl
 import org.ilerna.song_swipe_frontend.data.repository.impl.SpotifyRepositoryImpl
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsDataStore: SettingsDataStore
+    private lateinit var spotifyTokenDataStore: SpotifyTokenDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +57,13 @@ class MainActivity : ComponentActivity() {
             this,
             SettingsViewModelFactory(settingsDataStore)
         )[SettingsViewModel::class.java]
+        
+        // Spotify Token DataStore - initialize holder and load persisted tokens
+        spotifyTokenDataStore = SpotifyTokenDataStore(applicationContext)
+        SpotifyTokenHolder.initialize(spotifyTokenDataStore)
+        lifecycleScope.launch {
+            SpotifyTokenHolder.loadFromDataStore()
+        }
         
         // Auth dependencies
         val authRepository = SupabaseAuthRepository()

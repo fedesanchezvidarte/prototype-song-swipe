@@ -50,7 +50,7 @@ class SupabaseAuthRepository(
             val providerToken = params["provider_token"]
             val providerRefreshToken = params["provider_refresh_token"]
 
-            // Store Spotify tokens in holder for later use
+            // Store Spotify tokens in holder for later use (persisted to DataStore)
             // Supabase's importAuthToken doesn't persist provider tokens
             if (!providerToken.isNullOrEmpty()) {
                 SpotifyTokenHolder.setTokens(providerToken, providerRefreshToken)
@@ -132,7 +132,7 @@ class SupabaseAuthRepository(
 
     override suspend fun signOut() {
         try {
-            // Clear Spotify tokens
+            // Clear Spotify tokens (clears both cache and DataStore)
             SpotifyTokenHolder.clear()
             
             supabase.auth.signOut()

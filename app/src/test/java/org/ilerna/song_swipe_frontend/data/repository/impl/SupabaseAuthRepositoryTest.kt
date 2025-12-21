@@ -28,7 +28,7 @@ class SupabaseAuthRepositoryTest {
     private lateinit var mockAuth: Auth
 
     @Before
-    fun setup() {
+    fun setup() = runTest {
         // Clear SpotifyTokenHolder before each test
         SpotifyTokenHolder.clear()
         
@@ -52,7 +52,7 @@ class SupabaseAuthRepositoryTest {
     }
     
     @After
-    fun tearDown() {
+    fun tearDown() = runTest {
         unmockkStatic("io.github.jan.supabase.auth.AuthKt")
         unmockkStatic(Log::class)
         SpotifyTokenHolder.clear()
