@@ -55,10 +55,6 @@ class MainActivity : ComponentActivity() {
         
         // Settings DataStore
         settingsDataStore = SettingsDataStore(applicationContext)
-        settingsViewModel = ViewModelProvider(
-            this,
-            SettingsViewModelFactory(settingsDataStore)
-        )[SettingsViewModel::class.java]
         
         // Spotify Token DataStore - initialize holder and load persisted tokens
         // Using runBlocking to ensure tokens are loaded before any API calls.
@@ -104,6 +100,12 @@ class MainActivity : ComponentActivity() {
         
         // Create ViewModel with all dependencies
         loginViewModel = LoginViewModel(loginUseCase, getSpotifyUserProfileUseCase)
+        
+        // Create SettingsViewModel with LoginViewModel for sign-out functionality
+        settingsViewModel = ViewModelProvider(
+            this,
+            SettingsViewModelFactory(settingsDataStore, loginUseCase, loginViewModel)
+        )[SettingsViewModel::class.java]
 
         // Check if we're being called back from Supabase OAuth
         handleIntent(intent)

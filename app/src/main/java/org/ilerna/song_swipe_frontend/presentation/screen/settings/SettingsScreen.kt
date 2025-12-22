@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
+import org.ilerna.song_swipe_frontend.presentation.components.SettingItemWithButton
 import org.ilerna.song_swipe_frontend.presentation.components.SettingItemWithDropdown
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
@@ -30,6 +31,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val currentTheme by viewModel.currentTheme.collectAsState()
+    val isSigningOut by viewModel.isSigningOut.collectAsState()
     val colors = MaterialTheme.colorScheme
 
     Column(
@@ -56,6 +58,15 @@ fun SettingsScreen(
             optionLabel = { it.getDisplayName() },
             onOptionSelected = { theme -> viewModel.setTheme(theme) },
             contentDescription = "Select theme"
+        )
+        
+        // Sign Out Setting
+        SettingItemWithButton(
+            title = "Account",
+            description = "Sign out of your account",
+            buttonText = if (isSigningOut) "Signing out..." else "Sign Out",
+            onButtonClick = { viewModel.signOut() },
+            modifier = Modifier.padding(top = Spacing.spaceMd)
         )
     }
 }
@@ -88,6 +99,14 @@ fun PreviewSettingsScreen() {
                 optionLabel = { it.getDisplayName() },
                 onOptionSelected = {},
                 contentDescription = "Select theme"
+            )
+            
+            SettingItemWithButton(
+                title = "Account",
+                description = "Sign out of your account",
+                buttonText = "Sign Out",
+                onButtonClick = {},
+                modifier = Modifier.padding(top = Spacing.spaceMd)
             )
         }
     }
