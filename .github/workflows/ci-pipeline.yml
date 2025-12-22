@@ -27,6 +27,9 @@ jobs:
       - name: Grant permissions to gradlew
         run: chmod +x ./gradlew
       
+      - name: Remove local.properties
+        run: rm -f local.properties
+      
       - name: Build with Gradle
         run: ./gradlew assembleDebug --stacktrace
       
