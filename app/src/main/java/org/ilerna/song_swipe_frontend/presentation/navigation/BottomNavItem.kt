@@ -1,6 +1,8 @@
 package org.ilerna.song_swipe_frontend.presentation.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
+import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Settings
@@ -29,8 +31,8 @@ sealed class BottomNavItem(
     data object Playlists : BottomNavItem(
         route = "playlists",
         title = "Playlists",
-        selectedIcon = Icons.Filled.PlaylistPlay,
-        unselectedIcon = Icons.Outlined.PlaylistPlay
+        selectedIcon = Icons.AutoMirrored.Filled.PlaylistPlay,
+        unselectedIcon = Icons.AutoMirrored.Outlined.PlaylistPlay
     )
 
     data object Settings : BottomNavItem(
