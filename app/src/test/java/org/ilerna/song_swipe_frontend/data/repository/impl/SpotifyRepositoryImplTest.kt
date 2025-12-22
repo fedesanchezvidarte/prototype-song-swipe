@@ -6,7 +6,7 @@ import kotlinx.coroutines.test.runTest
 import org.ilerna.song_swipe_frontend.core.network.ApiResponse
 import org.ilerna.song_swipe_frontend.core.network.NetworkResult
 import org.ilerna.song_swipe_frontend.data.datasource.remote.impl.SpotifyDataSourceImpl
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyUserDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyUserDto
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
