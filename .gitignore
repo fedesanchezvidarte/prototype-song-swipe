@@ -79,3 +79,7 @@ Thumbs.db
 
 # Signing files
 .signing/
+
+# GitHub Copilot
+.github/prompts/
+.github/instructions/

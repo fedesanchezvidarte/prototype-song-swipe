@@ -15,9 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SwipeRight
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +71,7 @@ data class MusicCategory(
 fun HomeScreen(
     user: User?,
     onCategoryClick: (MusicCategory) -> Unit,
+    onSwipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Mock categories for the prototype
@@ -91,6 +100,30 @@ fun HomeScreen(
         UserHeader(user = user)
 
         Spacer(modifier = Modifier.height(Spacing.spaceXl))
+
+        // Special Swipe Feature Card
+        SwipeFeatureCard(onClick = onSwipeClick)
+
+        Spacer(modifier = Modifier.height(Spacing.spaceMd))
+
+        // Gradient Divider
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 2.dp,
+            color = Color.Transparent
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = NeonGradientColors
+                    )
+                )
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.spaceMd))
 
         // Section Title
         Text(
@@ -123,6 +156,66 @@ fun HomeScreen(
                         title = category.name,
                         backgroundColor = category.color,
                         onClick = { onCategoryClick(category) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Special feature card for the Swipe functionality.
+ * Spans 2 columns in the grid and uses gradient styling to attract attention.
+ */
+@Composable
+private fun SwipeFeatureCard(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val gradientBrush = Brush.linearGradient(
+        colors = listOf(NeonPurple, NeonPink, NeonOrange)
+    )
+
+    Card(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(gradientBrush),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(Spacing.spaceMd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SwipeRight,
+                    contentDescription = "Swipe",
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.width(Spacing.spaceMd))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Try Swipe!",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Discover music your way",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.9f)
                     )
                 }
             }
@@ -211,7 +304,8 @@ fun PreviewHomeScreen() {
                 displayName = "John Doe",
                 profileImageUrl = null
             ),
-            onCategoryClick = {}
+            onCategoryClick = {},
+            onSwipeClick = {}
         )
     }
 }
@@ -222,7 +316,8 @@ fun PreviewHomeScreenNoUser() {
     SongSwipeTheme {
         HomeScreen(
             user = null,
-            onCategoryClick = {}
+            onCategoryClick = {},
+            onSwipeClick = {}
         )
     }
 }
