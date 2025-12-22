@@ -2,8 +2,12 @@
 # local.properties file must *NOT* be checked into Version Control Systems,
 # as it contains information specific to your local configuration.
 
-# Replace with you actual SDK path
+# Replace with your actual SDK path
 sdk.dir=C\:\\Users\\USER\\AppData\\Local\\Android\\Sdk
+
+# Optionally specify JDK location for Gradle (uncomment if needed)
+# This prevents multiple Gradle daemons from spawning
+# org.gradle.java.home=C\:\\Program Files\\Android\\Android Studio\\jbr
 
 # ===================================================
 # ACTIVE ENVIRONMENT SELECTOR
