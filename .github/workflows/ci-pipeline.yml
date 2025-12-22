@@ -27,14 +27,94 @@ jobs:
       - name: Grant permissions to gradlew
         run: chmod +x ./gradlew
       
+      - name: Clean CI environment
+        run: |
+          rm -f local.properties
+          rm -f gradle.properties
+      
+      - name: Create CI gradle.properties
+        run: |
+          cat > gradle.properties << EOF
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          kotlin.code.style=official
+          android.nonTransitiveRClass=true
+          EOF
+      
       - name: Build with Gradle
         run: ./gradlew assembleDebug --stacktrace
       
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
+        run: ./gradlew test --stacktrace --continue
       
-      - name: Results report
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
+          retention-days: 30
+      
+      - name: Test summary
         if: always()
         run: |
-          echo "✅ Pipeline completed"
-          echo "Build and tests executed correctly"
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Find all test result XML files
+          TEST_FILES=$(find . -name "TEST-*.xml" -path "*/test-results/*" 2>/dev/null)
+          
+          if [ -z "$TEST_FILES" ]; then
+            echo "No test results found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Searched paths:" >> $GITHUB_STEP_SUMMARY
+            find . -type d -name "test-results" 2>/dev/null | head -5 >> $GITHUB_STEP_SUMMARY || echo "No test-results directories found" >> $GITHUB_STEP_SUMMARY
+          else
+            TOTAL=0
+            FAILED=0
+            SKIPPED=0
+            
+            echo "Processing test results..." >&2
+            
+            for file in $TEST_FILES; do
+              if [ -f "$file" ]; then
+                echo "Processing: $file" >&2
+                
+                # Extract test counts using sed (more portable than grep -P)
+                TESTS=$(sed -n 's/.*tests="\([0-9]*\)".*/\1/p' "$file" | head -1)
+                FAILURES=$(sed -n 's/.*failures="\([0-9]*\)".*/\1/p' "$file" | head -1)
+                SKIPS=$(sed -n 's/.*skipped="\([0-9]*\)".*/\1/p' "$file" | head -1)
+                
+                # Default to 0 if empty
+                TESTS=${TESTS:-0}
+                FAILURES=${FAILURES:-0}
+                SKIPS=${SKIPS:-0}
+                
+                echo "  Tests: $TESTS, Failures: $FAILURES, Skipped: $SKIPS" >&2
+                
+                TOTAL=$((TOTAL + TESTS))
+                FAILED=$((FAILED + FAILURES))
+                SKIPPED=$((SKIPPED + SKIPS))
+              fi
+            done
+            
+            PASSED=$((TOTAL - FAILED - SKIPPED))
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Passed** | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Failed** | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Skipped** | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Total** | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            if [ $FAILED -gt 0 ]; then
+              echo "❌ **Build Status:** Tests failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            else
+              echo "✅ **Build Status:** All tests passed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
