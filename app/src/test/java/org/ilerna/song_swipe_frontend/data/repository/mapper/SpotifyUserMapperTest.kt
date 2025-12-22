@@ -1,8 +1,8 @@
 package org.ilerna.song_swipe_frontend.data.repository.mapper
 
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyFollowersDto
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyImageDto
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyUserDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyFollowersDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyImageDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyUserDto
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

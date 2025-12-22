@@ -1,7 +1,7 @@
 package org.ilerna.song_swipe_frontend.data.repository.mapper
 
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyImageDto
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyUserDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyImageDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyUserDto
 import org.ilerna.song_swipe_frontend.domain.model.User
 
 /**

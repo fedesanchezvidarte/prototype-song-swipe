@@ -2,7 +2,7 @@ package org.ilerna.song_swipe_frontend.data.datasource.remote.impl
 
 import org.ilerna.song_swipe_frontend.core.network.ApiResponse
 import org.ilerna.song_swipe_frontend.data.datasource.remote.api.SpotifyApi
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyUserDto
+import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyUserDto
 
 /**
  * Implementation of Spotify data source

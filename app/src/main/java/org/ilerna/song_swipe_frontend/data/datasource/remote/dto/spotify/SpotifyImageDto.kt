@@ -1,4 +1,4 @@
-package org.ilerna.song_swipe_frontend.data.datasource.remote.dto
+package org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify
 
 import com.google.gson.annotations.SerializedName
 

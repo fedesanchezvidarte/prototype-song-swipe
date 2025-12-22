@@ -1,7 +1,6 @@
 package org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify
 
 import com.google.gson.annotations.SerializedName
-import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.SpotifyImageDto
 
 /**
  * DTO for Spotify playlist object
