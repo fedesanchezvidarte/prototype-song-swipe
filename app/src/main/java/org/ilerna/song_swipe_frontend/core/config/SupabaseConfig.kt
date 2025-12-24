@@ -1,8 +1,8 @@
 package org.ilerna.song_swipe_frontend.core.config
 
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import org.ilerna.song_swipe_frontend.BuildConfig
 
