@@ -25,11 +25,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        // Spotify Auth SDK manifest placeholders
-        manifestPlaceholders["redirectSchemeName"] = "songswipe"
-        manifestPlaceholders["redirectHostName"] = "callback"
-        manifestPlaceholders["redirectPathPattern"] = ""
 
         // Expose properties as BuildConfig fields
         // DEV environment
@@ -88,8 +83,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    // Authentication
-    implementation(libs.spotify.auth)
+    // Authentication (Supabase handles Spotify OAuth via browser)
     implementation(libs.postgrest.kt)
     implementation(libs.auth.kt)
 
