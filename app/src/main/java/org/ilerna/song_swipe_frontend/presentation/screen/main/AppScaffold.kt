@@ -19,7 +19,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import org.ilerna.song_swipe_frontend.domain.model.User
 import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavItem
 import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavigationBar
@@ -27,7 +26,6 @@ import org.ilerna.song_swipe_frontend.presentation.screen.home.HomeScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.playlists.PlaylistsScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModel
-import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 
 /**
  * App Scaffold with bottom navigation bar.
