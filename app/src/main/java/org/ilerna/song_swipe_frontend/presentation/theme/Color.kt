@@ -79,5 +79,7 @@ val NeonOrange = Color(0xFFF69752)
 val NeonPink = Color(0xFFF35987)
 val NeonPurple = Color(0xFF736FE7)
 val NeonCyan = Color(0xFF20CBD1)
+val NeonGreen = Color(0xFF1DB954)  // Spotify green
+val NeonRed = Color(0xFFFF5252)    // Dislike red
 
 val NeonGradientColors = listOf(NeonOrange, NeonPink, NeonPurple, NeonCyan)
