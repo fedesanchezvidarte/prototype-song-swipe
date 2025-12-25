@@ -6,6 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.github.jan.supabase.SupabaseClient
+import org.ilerna.song_swipe_frontend.core.config.SupabaseConfig
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISettingsDataStore
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISpotifyTokenDataStore
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.SettingsDataStore
@@ -21,6 +23,16 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    /**
+     * Provides the SupabaseClient singleton.
+     * Used for Supabase Auth and other Supabase services.
+     */
+    @Provides
+    @Singleton
+    fun provideSupabaseClient(): SupabaseClient {
+        return SupabaseConfig.client
+    }
 
     /**
      * Provides the SettingsDataStore as a singleton.

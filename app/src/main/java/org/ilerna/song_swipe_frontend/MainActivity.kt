@@ -7,67 +7,42 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
-import org.ilerna.song_swipe_frontend.core.network.interceptors.SpotifyAuthInterceptor
-import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.SettingsDataStore
-import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.SpotifyTokenDataStore
-import org.ilerna.song_swipe_frontend.data.datasource.remote.api.SpotifyApi
-import org.ilerna.song_swipe_frontend.data.datasource.remote.impl.SpotifyDataSourceImpl
-import org.ilerna.song_swipe_frontend.data.repository.impl.SpotifyRepositoryImpl
-import org.ilerna.song_swipe_frontend.data.repository.impl.SupabaseAuthRepository
+import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISpotifyTokenDataStore
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.model.UserProfileState
-import org.ilerna.song_swipe_frontend.data.repository.impl.PlaylistRepositoryImpl
-import org.ilerna.song_swipe_frontend.domain.usecase.LoginUseCase
-import org.ilerna.song_swipe_frontend.domain.usecase.playlist.GetPlaylistTracksUseCase
-import org.ilerna.song_swipe_frontend.domain.usecase.user.GetSpotifyUserProfileUseCase
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginViewModel
 import org.ilerna.song_swipe_frontend.presentation.screen.main.AppScaffold
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModel
-import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModelFactory
 import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeViewModel
-import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeViewModelFactory
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var loginViewModel: LoginViewModel
-    private lateinit var settingsViewModel: SettingsViewModel
-    private lateinit var swipeViewModel: SwipeViewModel
-    private lateinit var settingsDataStore: SettingsDataStore
-    private lateinit var spotifyTokenDataStore: SpotifyTokenDataStore
+    @Inject
+    lateinit var spotifyTokenDataStore: ISpotifyTokenDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // TODO: Refactor dependency injection using Hilt
-        //       Current manual DI works but doesn't scale well.
-        //       See: di/ folder structure in arquitectura docs
-        //       Priority: High (critical for maintainability and testing)
-        
-        // Settings DataStore
-        settingsDataStore = SettingsDataStore(applicationContext)
-        
-        // Spotify Token DataStore - initialize holder and load persisted tokens
+        // Initialize SpotifyTokenHolder with injected DataStore
         // Using runBlocking to ensure tokens are loaded before any API calls.
         // This prevents race conditions where SpotifyAuthInterceptor might be
         // called before tokens are restored from DataStore.
         // Note: initialize() is idempotent, safe to call on configuration changes.
-        spotifyTokenDataStore = SpotifyTokenDataStore(applicationContext)
         SpotifyTokenHolder.initialize(spotifyTokenDataStore)
         runBlocking {
             val loaded = SpotifyTokenHolder.loadFromDataStore()
@@ -75,61 +50,28 @@ class MainActivity : ComponentActivity() {
                 Log.w("MainActivity", "Failed to load Spotify tokens from DataStore")
             }
         }
-        
-        // Auth dependencies
-        val authRepository = SupabaseAuthRepository()
-        val loginUseCase = LoginUseCase(authRepository)
-        
-        // Spotify API dependencies (pass authRepository for token refresh capability)
-        val spotifyAuthInterceptor = SpotifyAuthInterceptor(authRepository)
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-        
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(spotifyAuthInterceptor)
-            .addInterceptor(loggingInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .build()
-        
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.spotify.com/")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        
-        val spotifyApi = retrofit.create(SpotifyApi::class.java)
-        val spotifyDataSource = SpotifyDataSourceImpl(spotifyApi)
-        val spotifyRepository = SpotifyRepositoryImpl(spotifyDataSource)
-        val getSpotifyUserProfileUseCase = GetSpotifyUserProfileUseCase(spotifyRepository)
-        
-        // Playlist/Swipe dependencies
-        val playlistRepository = PlaylistRepositoryImpl(spotifyApi)
-        val getPlaylistTracksUseCase = GetPlaylistTracksUseCase(playlistRepository)
-        
-        // Create ViewModel with all dependencies
-        loginViewModel = LoginViewModel(loginUseCase, getSpotifyUserProfileUseCase)
-        
-        // Create SwipeViewModel
-        swipeViewModel = ViewModelProvider(
-            this,
-            SwipeViewModelFactory(getPlaylistTracksUseCase)
-        )[SwipeViewModel::class.java]
-        
-        // Create SettingsViewModel with LoginViewModel for sign-out functionality
-        settingsViewModel = ViewModelProvider(
-            this,
-            SettingsViewModelFactory(settingsDataStore, loginUseCase, loginViewModel)
-        )[SettingsViewModel::class.java]
-
-        // Check if we're being called back from Supabase OAuth
-        handleIntent(intent)
 
         setContent {
+            // Get ViewModels using Hilt
+            val loginViewModel: LoginViewModel = hiltViewModel()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val swipeViewModel: SwipeViewModel = hiltViewModel()
+            
             val authState by loginViewModel.authState.collectAsState()
             val userProfileState by loginViewModel.userProfileState.collectAsState()
             val currentTheme by settingsViewModel.currentTheme.collectAsState()
+            
+            // Handle sign-out event from SettingsViewModel
+            LaunchedEffect(Unit) {
+                settingsViewModel.signOutComplete.collect {
+                    loginViewModel.resetAuthState()
+                }
+            }
+            
+            // Handle OAuth callback intent
+            LaunchedEffect(intent) {
+                handleIntent(intent, loginViewModel)
+            }
             
             // Extract user from profile state if available
             val user = (userProfileState as? UserProfileState.Success)?.user
@@ -161,15 +103,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleIntent(intent)
+        setIntent(intent) // Update the intent so LaunchedEffect can observe it
+        // Also handle immediately for cases where setContent hasn't recomposed yet
+        lifecycleScope.launch {
+            // Get the ViewModel from the activity's ViewModelStore
+            // This will be handled by the LaunchedEffect on next recomposition
+        }
     }
 
-    private fun handleIntent(intent: Intent?) {
+    private suspend fun handleIntent(intent: Intent?, loginViewModel: LoginViewModel) {
         val uri = intent?.data
         if (uri != null) {
-            lifecycleScope.launch {
-                loginViewModel.handleAuthCallback(uri.toString())
-            }
+            loginViewModel.handleAuthCallback(uri.toString())
         }
     }
 }
