@@ -343,4 +343,115 @@ class SupabaseAuthRepositoryTest {
         // Then
         assertEquals(false, result)
     }
+
+    // ==================== refreshSpotifyToken Tests ====================
+
+    @Test
+    fun `refreshSpotifyToken should refresh session and return provider token when available`() = runTest {
+        // Given
+        val providerToken = "fresh_spotify_token"
+        val providerRefreshToken = "fresh_spotify_refresh_token"
+        val mockSession = mockk<UserSession>()
+        
+        every { mockSession.providerToken } returns providerToken
+        every { mockSession.providerRefreshToken } returns providerRefreshToken
+        
+        coEvery { mockAuth.refreshCurrentSession() } just Runs
+        coEvery { mockAuth.currentSessionOrNull() } returns mockSession
+
+        // When
+        val result = repository.refreshSpotifyToken()
+
+        // Then
+        assertEquals(providerToken, result)
+        assertEquals(providerToken, SpotifyTokenHolder.getAccessToken())
+        assertEquals(providerRefreshToken, SpotifyTokenHolder.getRefreshToken())
+        coVerify { mockAuth.refreshCurrentSession() }
+    }
+
+    @Test
+    fun `refreshSpotifyToken should return null when session has no provider token`() = runTest {
+        // Given
+        val mockSession = mockk<UserSession>()
+        
+        every { mockSession.providerToken } returns null
+        every { mockSession.providerRefreshToken } returns null
+        
+        coEvery { mockAuth.refreshCurrentSession() } just Runs
+        coEvery { mockAuth.currentSessionOrNull() } returns mockSession
+
+        // When
+        val result = repository.refreshSpotifyToken()
+
+        // Then
+        assertNull(result)
+        assertNull(SpotifyTokenHolder.getAccessToken())
+        coVerify { mockAuth.refreshCurrentSession() }
+    }
+
+    @Test
+    fun `refreshSpotifyToken should return null when provider token is empty string`() = runTest {
+        // Given
+        val mockSession = mockk<UserSession>()
+        
+        every { mockSession.providerToken } returns ""
+        every { mockSession.providerRefreshToken } returns null
+        
+        coEvery { mockAuth.refreshCurrentSession() } just Runs
+        coEvery { mockAuth.currentSessionOrNull() } returns mockSession
+
+        // When
+        val result = repository.refreshSpotifyToken()
+
+        // Then
+        assertNull(result)
+    }
+
+    @Test
+    fun `refreshSpotifyToken should return null when session refresh fails`() = runTest {
+        // Given
+        coEvery { mockAuth.refreshCurrentSession() } throws Exception("Network error")
+
+        // When
+        val result = repository.refreshSpotifyToken()
+
+        // Then
+        assertNull(result)
+    }
+
+    @Test
+    fun `refreshSpotifyToken should return null when no session exists after refresh`() = runTest {
+        // Given
+        coEvery { mockAuth.refreshCurrentSession() } just Runs
+        coEvery { mockAuth.currentSessionOrNull() } returns null
+
+        // When
+        val result = repository.refreshSpotifyToken()
+
+        // Then
+        assertNull(result)
+    }
+
+    @Test
+    fun `refreshSpotifyToken should update SpotifyTokenHolder with new tokens`() = runTest {
+        // Given - Pre-existing token in holder
+        SpotifyTokenHolder.setTokens("old_token", "old_refresh_token")
+        
+        val newProviderToken = "new_spotify_token"
+        val newProviderRefreshToken = "new_spotify_refresh_token"
+        val mockSession = mockk<UserSession>()
+        
+        every { mockSession.providerToken } returns newProviderToken
+        every { mockSession.providerRefreshToken } returns newProviderRefreshToken
+        
+        coEvery { mockAuth.refreshCurrentSession() } just Runs
+        coEvery { mockAuth.currentSessionOrNull() } returns mockSession
+
+        // When
+        repository.refreshSpotifyToken()
+
+        // Then - Should have replaced old tokens
+        assertEquals(newProviderToken, SpotifyTokenHolder.getAccessToken())
+        assertEquals(newProviderRefreshToken, SpotifyTokenHolder.getRefreshToken())
+    }
 }

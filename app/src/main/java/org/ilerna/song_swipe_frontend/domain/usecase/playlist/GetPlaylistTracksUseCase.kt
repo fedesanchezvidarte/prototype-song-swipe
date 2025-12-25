@@ -15,10 +15,10 @@ class GetPlaylistTracksUseCase(
     // TODO: Consider to refactor the Get Featured Playlists endpoint to fetch a random playlist each time
     companion object {
         /**
-         * Default playlist ID - Rock Classics (Spotify curated playlist)
-         * ~50 tracks with good mix of popular tracks with preview URLs
+         * Default playlist ID - Spotify API documentation example playlist
+         * Public playlist that works globally without region restrictions
          */
-        const val DEFAULT_PLAYLIST_ID = "37i9dQZF1DWXRqgorJj26U"
+        const val DEFAULT_PLAYLIST_ID = "3cEYpjA9oz9GiPac4AsH4n"
     }
 
     /**

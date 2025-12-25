@@ -26,13 +26,17 @@ import org.ilerna.song_swipe_frontend.data.repository.impl.SpotifyRepositoryImpl
 import org.ilerna.song_swipe_frontend.data.repository.impl.SupabaseAuthRepository
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.model.UserProfileState
+import org.ilerna.song_swipe_frontend.data.repository.impl.PlaylistRepositoryImpl
 import org.ilerna.song_swipe_frontend.domain.usecase.LoginUseCase
+import org.ilerna.song_swipe_frontend.domain.usecase.playlist.GetPlaylistTracksUseCase
 import org.ilerna.song_swipe_frontend.domain.usecase.user.GetSpotifyUserProfileUseCase
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginViewModel
 import org.ilerna.song_swipe_frontend.presentation.screen.main.AppScaffold
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModel
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModelFactory
+import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeViewModel
+import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeViewModelFactory
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -42,6 +46,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var swipeViewModel: SwipeViewModel
     private lateinit var settingsDataStore: SettingsDataStore
     private lateinit var spotifyTokenDataStore: SpotifyTokenDataStore
 
@@ -75,8 +80,8 @@ class MainActivity : ComponentActivity() {
         val authRepository = SupabaseAuthRepository()
         val loginUseCase = LoginUseCase(authRepository)
         
-        // Spotify API dependencies
-        val spotifyAuthInterceptor = SpotifyAuthInterceptor()
+        // Spotify API dependencies (pass authRepository for token refresh capability)
+        val spotifyAuthInterceptor = SpotifyAuthInterceptor(authRepository)
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -99,8 +104,18 @@ class MainActivity : ComponentActivity() {
         val spotifyRepository = SpotifyRepositoryImpl(spotifyDataSource)
         val getSpotifyUserProfileUseCase = GetSpotifyUserProfileUseCase(spotifyRepository)
         
+        // Playlist/Swipe dependencies
+        val playlistRepository = PlaylistRepositoryImpl(spotifyApi)
+        val getPlaylistTracksUseCase = GetPlaylistTracksUseCase(playlistRepository)
+        
         // Create ViewModel with all dependencies
         loginViewModel = LoginViewModel(loginUseCase, getSpotifyUserProfileUseCase)
+        
+        // Create SwipeViewModel
+        swipeViewModel = ViewModelProvider(
+            this,
+            SwipeViewModelFactory(getPlaylistTracksUseCase)
+        )[SwipeViewModel::class.java]
         
         // Create SettingsViewModel with LoginViewModel for sign-out functionality
         settingsViewModel = ViewModelProvider(
@@ -126,6 +141,7 @@ class MainActivity : ComponentActivity() {
                         AppScaffold(
                             user = user,
                             settingsViewModel = settingsViewModel,
+                            swipeViewModel = swipeViewModel,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

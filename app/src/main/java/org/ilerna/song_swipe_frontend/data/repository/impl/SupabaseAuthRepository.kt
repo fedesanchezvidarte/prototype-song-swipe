@@ -82,7 +82,10 @@ class SupabaseAuthRepository(
                 }
 
                 if (session != null) {
-                    Log.d(AppConfig.LOG_TAG, "Session imported successfully after ${attempts * 100}ms")
+                    Log.d(
+                        AppConfig.LOG_TAG,
+                        "Session imported successfully after ${attempts * 100}ms"
+                    )
                     Log.d(AppConfig.LOG_TAG, "User ID: ${session.user?.id}")
                     Log.d(AppConfig.LOG_TAG, "User email: ${session.user?.email}")
                     AuthState.Success(session.user?.id ?: "")
@@ -106,9 +109,12 @@ class SupabaseAuthRepository(
                 User(
                     id = user.id,
                     email = user.email ?: "",
-                    displayName = user.userMetadata?.get("name")?.toString()?.removeSurrounding("\"") ?: "",
-                    profileImageUrl = user.userMetadata?.get("avatar_url")?.toString()?.removeSurrounding("\""),
-                    spotifyId = user.userMetadata?.get("provider_id")?.toString()?.removeSurrounding("\"")
+                    displayName = user.userMetadata?.get("name")?.toString()
+                        ?.removeSurrounding("\"") ?: "",
+                    profileImageUrl = user.userMetadata?.get("avatar_url")?.toString()
+                        ?.removeSurrounding("\""),
+                    spotifyId = user.userMetadata?.get("provider_id")?.toString()
+                        ?.removeSurrounding("\"")
                 )
             }
         } catch (e: Exception) {
@@ -121,7 +127,7 @@ class SupabaseAuthRepository(
         return try {
             // First try to get from SpotifyTokenHolder (extracted from OAuth callback)
             SpotifyTokenHolder.getAccessToken()?.let { return it }
-            
+
             // Fallback: try to get from Supabase session (may not be available)
             supabase.auth.currentSessionOrNull()?.providerToken
         } catch (e: Exception) {
@@ -134,7 +140,7 @@ class SupabaseAuthRepository(
         try {
             // Clear Spotify tokens (clears both cache and DataStore)
             SpotifyTokenHolder.clear()
-            
+
             supabase.auth.signOut()
             Log.d(AppConfig.LOG_TAG, "User signed out successfully")
         } catch (e: Exception) {
@@ -144,5 +150,42 @@ class SupabaseAuthRepository(
 
     override suspend fun hasActiveSession(): Boolean {
         return supabase.auth.currentSessionOrNull() != null
+    }
+
+    override suspend fun refreshSpotifyToken(): String? {
+        return try {
+            Log.d(
+                AppConfig.LOG_TAG,
+                "Attempting to refresh Supabase session for fresh Spotify token..."
+            )
+
+            // Refresh the Supabase session
+            supabase.auth.refreshCurrentSession()
+
+            // After refresh, get the current session to check for provider token
+            val currentSession = supabase.auth.currentSessionOrNull()
+
+            // Check if the refreshed session has a provider token
+            val providerToken = currentSession?.providerToken
+            val providerRefreshToken = currentSession?.providerRefreshToken
+
+            if (!providerToken.isNullOrEmpty()) {
+                // Store the fresh token in the holder
+                SpotifyTokenHolder.setTokens(providerToken, providerRefreshToken)
+                Log.d(AppConfig.LOG_TAG, "Successfully refreshed Spotify token from session")
+                providerToken
+            } else {
+                // Supabase session refreshed but no provider token available
+                // This typically means the original OAuth didn't include it or it wasn't persisted
+                Log.w(
+                    AppConfig.LOG_TAG,
+                    "Session refreshed but no provider_token available. User may need to re-authenticate."
+                )
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(AppConfig.LOG_TAG, "Failed to refresh session: ${e.message}", e)
+            null
+        }
     }
 }
