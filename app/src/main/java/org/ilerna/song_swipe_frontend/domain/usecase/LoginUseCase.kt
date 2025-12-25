@@ -48,4 +48,16 @@ class LoginUseCase(private val authRepository: AuthRepository) {
      * Signs out the current user
      */
     suspend fun signOut() = authRepository.signOut()
+    
+    /**
+     * Gets the current Spotify access token
+     */
+    suspend fun getSpotifyToken() = authRepository.getSpotifyAccessToken()
+    
+    /**
+     * Attempts to refresh the Spotify token via Supabase session refresh.
+     * Should be called when the token is expired or missing.
+     * @return The fresh Spotify token if successful, null otherwise
+     */
+    suspend fun refreshSpotifyToken() = authRepository.refreshSpotifyToken()
 }

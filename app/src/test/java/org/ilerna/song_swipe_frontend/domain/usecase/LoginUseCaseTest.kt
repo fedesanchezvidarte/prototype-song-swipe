@@ -146,4 +146,60 @@ class LoginUseCaseTest {
         val elapsed = endTime - startTime
         assertTrue(elapsed >= 200, "Expected delay of at least 200ms, but was ${elapsed}ms")
     }
+
+    // ==================== Spotify Token Tests ====================
+
+    @Test
+    fun `getSpotifyToken should delegate to repository`() = runTest {
+        // Given
+        val expectedToken = "spotify_access_token_123"
+        coEvery { mockAuthRepository.getSpotifyAccessToken() } returns expectedToken
+
+        // When
+        val result = loginUseCase.getSpotifyToken()
+
+        // Then
+        assertEquals(expectedToken, result)
+        coVerify(exactly = 1) { mockAuthRepository.getSpotifyAccessToken() }
+    }
+
+    @Test
+    fun `getSpotifyToken should return null when no token available`() = runTest {
+        // Given
+        coEvery { mockAuthRepository.getSpotifyAccessToken() } returns null
+
+        // When
+        val result = loginUseCase.getSpotifyToken()
+
+        // Then
+        assertNull(result)
+        coVerify(exactly = 1) { mockAuthRepository.getSpotifyAccessToken() }
+    }
+
+    @Test
+    fun `refreshSpotifyToken should delegate to repository and return fresh token`() = runTest {
+        // Given
+        val freshToken = "fresh_spotify_token"
+        coEvery { mockAuthRepository.refreshSpotifyToken() } returns freshToken
+
+        // When
+        val result = loginUseCase.refreshSpotifyToken()
+
+        // Then
+        assertEquals(freshToken, result)
+        coVerify(exactly = 1) { mockAuthRepository.refreshSpotifyToken() }
+    }
+
+    @Test
+    fun `refreshSpotifyToken should return null when refresh fails`() = runTest {
+        // Given
+        coEvery { mockAuthRepository.refreshSpotifyToken() } returns null
+
+        // When
+        val result = loginUseCase.refreshSpotifyToken()
+
+        // Then
+        assertNull(result)
+        coVerify(exactly = 1) { mockAuthRepository.refreshSpotifyToken() }
+    }
 }

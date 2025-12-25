@@ -1,11 +1,14 @@
 package org.ilerna.song_swipe_frontend.presentation.screen.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
+import org.ilerna.song_swipe_frontend.core.config.AppConfig
 import org.ilerna.song_swipe_frontend.core.network.NetworkResult
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.model.UserProfileState
@@ -33,7 +36,8 @@ class LoginViewModel(
     }
 
     /**
-     * Checks if there's an existing session and updates the state accordingly
+     * Checks if there's an existing session and updates the state accordingly.
+     * Also ensures the Spotify token is available, attempting to refresh if needed.
      */
     private fun checkExistingSession() {
         viewModelScope.launch {
@@ -45,6 +49,10 @@ class LoginViewModel(
                     val user = loginUseCase.getCurrentUser()
                     if (user != null) {
                         _authState.value = AuthState.Success(user.id)
+                        
+                        // Check if we have a valid Spotify token
+                        ensureSpotifyTokenAvailable()
+                        
                         // Fetch Spotify profile after successful auth
                         fetchSpotifyUserProfile()
                     } else {
@@ -54,8 +62,34 @@ class LoginViewModel(
                     _authState.value = AuthState.Idle
                 }
             } catch (e: Exception) {
+                Log.e(AppConfig.LOG_TAG, "Error checking existing session", e)
                 _authState.value = AuthState.Idle
             }
+        }
+    }
+    
+    /**
+     * Ensures a valid Spotify token is available.
+     * If the token is missing or expired, attempts to refresh it.
+     */
+    private suspend fun ensureSpotifyTokenAvailable() {
+        val currentToken = SpotifyTokenHolder.getAccessToken()
+        
+        if (currentToken.isNullOrEmpty()) {
+            Log.d(AppConfig.LOG_TAG, "LoginViewModel: Spotify token missing, attempting to refresh...")
+            
+            // Try to get a fresh token by refreshing the Supabase session
+            val freshToken = loginUseCase.refreshSpotifyToken()
+            
+            if (freshToken.isNullOrEmpty()) {
+                Log.w(AppConfig.LOG_TAG, "LoginViewModel: Could not obtain Spotify token. User may need to re-authenticate.")
+                // Note: We don't force logout here - the user can still see the app
+                // but API calls will fail and the interceptor will handle 401s
+            } else {
+                Log.d(AppConfig.LOG_TAG, "LoginViewModel: Successfully refreshed Spotify token")
+            }
+        } else {
+            Log.d(AppConfig.LOG_TAG, "LoginViewModel: Spotify token already available")
         }
     }
 
