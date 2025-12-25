@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
 
 // Load properties from local.properties file
@@ -101,6 +103,11 @@ dependencies {
 
     // Gson for JSON parsing
     implementation(libs.gson)
+
+    // Hilt - Dependency Injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
     // Coil for image loading (Compose)
     implementation(libs.coil.compose)
