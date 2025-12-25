@@ -2,11 +2,14 @@ package org.ilerna.song_swipe_frontend.domain.usecase
 
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.repository.AuthRepository
+import javax.inject.Inject
 
 /**
  * Use case for handling user login with Spotify via Supabase
  */
-class LoginUseCase(private val authRepository: AuthRepository) {
+class LoginUseCase @Inject constructor(
+    private val authRepository: AuthRepository
+) {
     
     /**
      * Initiates the Spotify login flow via Supabase
