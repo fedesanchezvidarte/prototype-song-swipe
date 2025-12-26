@@ -1,5 +1,7 @@
 package org.ilerna.song_swipe_frontend.presentation.screen.settings
 
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISettingsDataStore
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
+import org.ilerna.song_swipe_frontend.domain.usecase.LoginUseCase
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -24,10 +27,13 @@ import kotlin.test.assertEquals
 class SettingsViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
+    private lateinit var mockLoginUseCase: LoginUseCase
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        mockLoginUseCase = mockk(relaxed = true)
+        coEvery { mockLoginUseCase.signOut() } returns Unit
     }
 
     @After
@@ -39,7 +45,7 @@ class SettingsViewModelTest {
     fun `initial theme is SYSTEM`() = runTest(testDispatcher) {
         // Given
         val fakeSettingsDataStore = FakeSettingsDataStore()
-        val viewModel = SettingsViewModel(fakeSettingsDataStore)
+        val viewModel = SettingsViewModel(fakeSettingsDataStore, mockLoginUseCase)
 
         // Then - initial value should be SYSTEM
         assertEquals(ThemeMode.SYSTEM, viewModel.currentTheme.value)
@@ -49,7 +55,7 @@ class SettingsViewModelTest {
     fun `setTheme persists DARK to DataStore`() = runTest(testDispatcher) {
         // Given
         val fakeSettingsDataStore = FakeSettingsDataStore()
-        val viewModel = SettingsViewModel(fakeSettingsDataStore)
+        val viewModel = SettingsViewModel(fakeSettingsDataStore, mockLoginUseCase)
 
         // When
         viewModel.setTheme(ThemeMode.DARK)
@@ -63,7 +69,7 @@ class SettingsViewModelTest {
     fun `setTheme persists LIGHT to DataStore`() = runTest(testDispatcher) {
         // Given
         val fakeSettingsDataStore = FakeSettingsDataStore()
-        val viewModel = SettingsViewModel(fakeSettingsDataStore)
+        val viewModel = SettingsViewModel(fakeSettingsDataStore, mockLoginUseCase)
 
         // When
         viewModel.setTheme(ThemeMode.LIGHT)
@@ -77,7 +83,7 @@ class SettingsViewModelTest {
     fun `setTheme persists SYSTEM to DataStore`() = runTest(testDispatcher) {
         // Given
         val fakeSettingsDataStore = FakeSettingsDataStore(initialTheme = ThemeMode.DARK)
-        val viewModel = SettingsViewModel(fakeSettingsDataStore)
+        val viewModel = SettingsViewModel(fakeSettingsDataStore, mockLoginUseCase)
 
         // When
         viewModel.setTheme(ThemeMode.SYSTEM)
@@ -91,7 +97,7 @@ class SettingsViewModelTest {
     fun `multiple setTheme calls persist correctly to DataStore`() = runTest(testDispatcher) {
         // Given
         val fakeSettingsDataStore = FakeSettingsDataStore()
-        val viewModel = SettingsViewModel(fakeSettingsDataStore)
+        val viewModel = SettingsViewModel(fakeSettingsDataStore, mockLoginUseCase)
 
         // When/Then - change through all themes
         viewModel.setTheme(ThemeMode.LIGHT)

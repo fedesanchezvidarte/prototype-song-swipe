@@ -10,11 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISpotifyTokenDataStore
@@ -33,6 +34,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var spotifyTokenDataStore: ISpotifyTokenDataStore
+    
+    // Track the last processed URI to avoid re-processing on recomposition
+    private var lastProcessedUri: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +54,9 @@ class MainActivity : ComponentActivity() {
                 Log.w("MainActivity", "Failed to load Spotify tokens from DataStore")
             }
         }
+        
+        // Handle initial intent if it contains auth callback
+        val initialUri = intent?.data?.toString()
 
         setContent {
             // Get ViewModels using Hilt
@@ -61,6 +68,9 @@ class MainActivity : ComponentActivity() {
             val userProfileState by loginViewModel.userProfileState.collectAsState()
             val currentTheme by settingsViewModel.currentTheme.collectAsState()
             
+            // Track pending auth callback URI
+            var pendingAuthUri by remember { mutableStateOf(initialUri) }
+            
             // Handle sign-out event from SettingsViewModel
             LaunchedEffect(Unit) {
                 settingsViewModel.signOutComplete.collect {
@@ -68,9 +78,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
             
-            // Handle OAuth callback intent
-            LaunchedEffect(intent) {
-                handleIntent(intent, loginViewModel)
+            // Handle OAuth callback - only process if we have a new URI
+            LaunchedEffect(pendingAuthUri) {
+                val uri = pendingAuthUri
+                if (uri != null && uri != lastProcessedUri && uri.contains("songswipe://callback")) {
+                    Log.d("MainActivity", "Processing auth callback: $uri")
+                    lastProcessedUri = uri
+                    pendingAuthUri = null // Clear after processing
+                    loginViewModel.handleAuthCallback(uri)
+                }
             }
             
             // Extract user from profile state if available
@@ -103,18 +119,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        setIntent(intent) // Update the intent so LaunchedEffect can observe it
-        // Also handle immediately for cases where setContent hasn't recomposed yet
-        lifecycleScope.launch {
-            // Get the ViewModel from the activity's ViewModelStore
-            // This will be handled by the LaunchedEffect on next recomposition
-        }
-    }
-
-    private suspend fun handleIntent(intent: Intent?, loginViewModel: LoginViewModel) {
-        val uri = intent?.data
-        if (uri != null) {
-            loginViewModel.handleAuthCallback(uri.toString())
+        setIntent(intent)
+        
+        // Extract URI and trigger recomposition by recreating content
+        val uri = intent.data?.toString()
+        if (uri != null && uri.contains("songswipe://callback") && uri != lastProcessedUri) {
+            Log.d("MainActivity", "onNewIntent received auth callback: $uri")
+            // Force recreate to handle the new intent
+            recreate()
         }
     }
 }
