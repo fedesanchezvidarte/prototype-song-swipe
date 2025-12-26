@@ -3,12 +3,13 @@ package org.ilerna.song_swipe_frontend.domain.usecase.playlist
 import org.ilerna.song_swipe_frontend.core.network.NetworkResult
 import org.ilerna.song_swipe_frontend.domain.model.Track
 import org.ilerna.song_swipe_frontend.domain.repository.PlaylistRepository
+import javax.inject.Inject
 
 /**
  * Use case for fetching tracks from a Spotify playlist
  * Encapsulates the business logic for retrieving playlist tracks
  */
-class GetPlaylistTracksUseCase(
+class GetPlaylistTracksUseCase @Inject constructor(
     private val playlistRepository: PlaylistRepository
 ) {
 

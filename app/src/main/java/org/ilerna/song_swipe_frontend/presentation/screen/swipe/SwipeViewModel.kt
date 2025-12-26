@@ -1,20 +1,22 @@
 package org.ilerna.song_swipe_frontend.presentation.screen.swipe
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.ilerna.song_swipe_frontend.core.network.NetworkResult
 import org.ilerna.song_swipe_frontend.domain.usecase.playlist.GetPlaylistTracksUseCase
+import javax.inject.Inject
 
 /**
  * ViewModel for the Swipe screen
  * Manages track loading and swipe actions (like/dislike)
  */
-class SwipeViewModel(
+@HiltViewModel
+class SwipeViewModel @Inject constructor(
     private val getPlaylistTracksUseCase: GetPlaylistTracksUseCase
 ) : ViewModel() {
 
@@ -100,20 +102,5 @@ class SwipeViewModel(
      */
     fun retry() {
         loadTracks()
-    }
-}
-
-/**
- * Factory for creating SwipeViewModel with dependencies
- */
-class SwipeViewModelFactory(
-    private val getPlaylistTracksUseCase: GetPlaylistTracksUseCase
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SwipeViewModel::class.java)) {
-            return SwipeViewModel(getPlaylistTracksUseCase) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -7,18 +7,18 @@ import io.github.jan.supabase.auth.providers.Spotify
 import kotlinx.coroutines.delay
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
 import org.ilerna.song_swipe_frontend.core.config.AppConfig
-import org.ilerna.song_swipe_frontend.core.config.SupabaseConfig
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.model.User
 import org.ilerna.song_swipe_frontend.domain.repository.AuthRepository
+import javax.inject.Inject
 
 /**
  * Implementation of AuthRepository using Supabase Auth
  * Handles Spotify OAuth flow through Supabase
- * @param supabaseClient The Supabase client instance (defaults to singleton for production use)
+ * @param supabaseClient The Supabase client instance injected by Hilt
  */
-class SupabaseAuthRepository(
-    private val supabaseClient: SupabaseClient = SupabaseConfig.client
+class SupabaseAuthRepository @Inject constructor(
+    private val supabaseClient: SupabaseClient
 ) : AuthRepository {
 
     private val supabase = supabaseClient
