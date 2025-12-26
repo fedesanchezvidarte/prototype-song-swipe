@@ -41,6 +41,7 @@ import coil.compose.AsyncImage
 import org.ilerna.song_swipe_frontend.domain.model.User
 import org.ilerna.song_swipe_frontend.presentation.components.CategoryCard
 import org.ilerna.song_swipe_frontend.presentation.components.GradientCategoryCard
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonCyan
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonGradientColors
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonOrange
@@ -73,6 +74,8 @@ fun HomeScreen(
     onSwipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     // Mock categories for the prototype
     val categories = listOf(
         MusicCategory("1", "Pop", NeonPink),
@@ -90,7 +93,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.background)
             .padding(horizontal = Spacing.spaceMd)
     ) {
         Spacer(modifier = Modifier.height(Spacing.spaceXl))
@@ -130,7 +133,7 @@ fun HomeScreen(
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold
             ),
-            color = MaterialTheme.colorScheme.onBackground
+            color = colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(Spacing.spaceMd))
@@ -230,6 +233,7 @@ private fun UserHeader(
     user: User?,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val gradientBorder = Brush.linearGradient(colors = NeonGradientColors)
 
     Row(
@@ -247,7 +251,7 @@ private fun UserHeader(
                 )
                 .padding(3.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             if (user?.profileImageUrl != null) {
@@ -266,7 +270,7 @@ private fun UserHeader(
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -278,14 +282,14 @@ private fun UserHeader(
             Text(
                 text = "Welcome back,",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium)
             )
             Text(
                 text = user?.displayName ?: "Music Lover",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = MaterialTheme.colorScheme.onBackground
+                color = colorScheme.onBackground
             )
         }
     }

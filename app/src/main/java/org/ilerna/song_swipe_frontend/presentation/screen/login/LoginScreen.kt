@@ -33,6 +33,7 @@ import org.ilerna.song_swipe_frontend.R
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.presentation.components.AnimatedGradientBorder
 import org.ilerna.song_swipe_frontend.presentation.components.PrimaryButton
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonGradientColors
 import org.ilerna.song_swipe_frontend.presentation.theme.Sizes
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
@@ -51,10 +52,12 @@ fun LoginScreen(
     onResetState: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.background)
     ) {
         // Animated neon border around the whole screen
         AnimatedGradientBorder(
@@ -82,9 +85,9 @@ fun LoginScreen(
 
                 // Logo shown only when NOT in error state
                 Image(
-                    painter = painterResource(id = R.drawable.songswipe_logo),
+                    painter = painterResource(id = R.drawable.ss_logo_color),
                     contentDescription = "SongSwipe Logo",
-                    modifier = Modifier.size(170.dp)
+                    modifier = Modifier.size(100.dp)
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -95,7 +98,7 @@ fun LoginScreen(
                     is AuthState.Idle -> {
                         Text(
                             text = "Swipe to discover new music!",
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = colorScheme.onBackground,
                             style = MaterialTheme.typography.bodyMedium,
                             fontSize = 14.sp
                         )
@@ -108,7 +111,7 @@ fun LoginScreen(
                     }
 
                     is AuthState.Loading -> {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        CircularProgressIndicator(color = colorScheme.primary)
                     }
 
                     // Success state is handled by MainActivity navigation
@@ -129,11 +132,12 @@ private fun LoginScreenError(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val vibrantGradient = Brush.horizontalGradient(colors = NeonGradientColors)
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -144,7 +148,7 @@ private fun LoginScreenError(
         ) {
             // PNG Image
             Image(
-                painter = painterResource(id = R.drawable.audio_waves),
+                painter = painterResource(id = R.drawable.ss_logo_gray),
                 contentDescription = "Error Indicator",
                 modifier = Modifier.size(120.dp)
             )
@@ -156,7 +160,7 @@ private fun LoginScreenError(
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = colorScheme.onBackground
                 ),
                 textAlign = TextAlign.Center
             )
@@ -164,13 +168,11 @@ private fun LoginScreenError(
 
             // Error message
             Text(
-                text = if (errorMessage.isNotEmpty()) {
-                    errorMessage
-                } else {
+                text = errorMessage.ifEmpty {
                     "We couldn't complete your login request. Please try again or contact support."
                 },
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium),
                     fontSize = 16.sp
                 ),
                 textAlign = TextAlign.Center,
@@ -187,7 +189,7 @@ private fun LoginScreenError(
                     .background(vibrantGradient, MaterialTheme.shapes.extraLarge),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    contentColor = colorScheme.onPrimary
                 ),
                 contentPadding = PaddingValues(
                     horizontal = Spacing.spaceLg,

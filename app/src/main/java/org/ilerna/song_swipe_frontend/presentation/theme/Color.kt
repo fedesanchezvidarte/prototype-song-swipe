@@ -83,3 +83,9 @@ val NeonGreen = Color(0xFF1DB954)  // Spotify green
 val NeonRed = Color(0xFFFF5252)    // Dislike red
 
 val NeonGradientColors = listOf(NeonOrange, NeonPink, NeonPurple, NeonCyan)
+
+// Common alpha values for text
+const val ContentAlphaHigh = 1.0f
+const val ContentAlphaMedium = 0.7f
+const val ContentAlphaDisabled = 0.6f
+const val ContentAlphaLow = 0.5f

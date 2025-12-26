@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 
 /**
  * SettingItemWithButton - Reusable component for a setting with a button action.
@@ -33,7 +34,7 @@ fun SettingItemWithButton(
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = MaterialTheme.colorScheme
+    val colorScheme = MaterialTheme.colorScheme
 
     Row(
         modifier = modifier
@@ -48,13 +49,13 @@ fun SettingItemWithButton(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = colors.onSurface,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface.copy(alpha = 0.7f)
+                color = colorScheme.onSurface.copy(alpha = ContentAlphaMedium)
             )
         }
 
@@ -62,8 +63,8 @@ fun SettingItemWithButton(
         Button(
             onClick = onButtonClick,
             colors = ButtonDefaults.buttonColors(
-                containerColor = colors.primary,
-                contentColor = colors.onPrimary
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
             )
         ) {
             Text(

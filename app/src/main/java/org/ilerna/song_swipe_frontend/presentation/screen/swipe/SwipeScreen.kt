@@ -55,6 +55,9 @@ import coil.compose.AsyncImage
 import org.ilerna.song_swipe_frontend.domain.model.Album
 import org.ilerna.song_swipe_frontend.domain.model.Artist
 import org.ilerna.song_swipe_frontend.domain.model.Track
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaDisabled
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaLow
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonCyan
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonGreen
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonPink
@@ -76,6 +79,7 @@ fun SwipeScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val colorScheme = MaterialTheme.colorScheme
 
     // Load tracks when the screen is first displayed
     LaunchedEffect(Unit) {
@@ -104,8 +108,8 @@ fun SwipeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground
                 )
             )
         },
@@ -115,7 +119,7 @@ fun SwipeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background),
+                .background(colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             when (val currentState = state) {
@@ -155,6 +159,7 @@ fun SwipeScreen(
 
 @Composable
 private fun LoadingContent() {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -167,7 +172,7 @@ private fun LoadingContent() {
         Text(
             text = "Loading tracks...",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+            color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium)
         )
     }
 }
@@ -181,6 +186,7 @@ private fun SwipeContent(
     onDislike: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -195,7 +201,7 @@ private fun SwipeContent(
                 .height(4.dp)
                 .clip(RoundedCornerShape(2.dp)),
             color = NeonCyan,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
+            trackColor = colorScheme.surfaceVariant
         )
 
         Spacer(modifier = Modifier.height(Spacing.spaceSm))
@@ -203,7 +209,7 @@ private fun SwipeContent(
         Text(
             text = "$tracksRemaining tracks remaining",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+            color = colorScheme.onBackground.copy(alpha = ContentAlphaDisabled)
         )
 
         Spacer(modifier = Modifier.height(Spacing.spaceLg))
@@ -228,13 +234,14 @@ private fun TrackCard(
     track: Track,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.spaceMd),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
@@ -248,7 +255,7 @@ private fun TrackCard(
                     .fillMaxWidth()
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surface),
+                    .background(colorScheme.surface),
                 contentAlignment = Alignment.Center
             ) {
                 if (track.album.imageUrl != null) {
@@ -263,7 +270,7 @@ private fun TrackCard(
                         imageVector = Icons.Default.MusicNote,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        tint = colorScheme.onSurface.copy(alpha = ContentAlphaLow)
                     )
                 }
             }
@@ -276,7 +283,7 @@ private fun TrackCard(
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -288,7 +295,7 @@ private fun TrackCard(
             Text(
                 text = track.artists.joinToString(", ") { it.name },
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                color = colorScheme.onSurface.copy(alpha = ContentAlphaMedium),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -300,7 +307,7 @@ private fun TrackCard(
             Text(
                 text = track.album.name,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = colorScheme.onSurface.copy(alpha = ContentAlphaLow),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -382,6 +389,7 @@ private fun CompletedContent(
     totalCount: Int,
     onRestart: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -399,7 +407,7 @@ private fun CompletedContent(
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
-            color = MaterialTheme.colorScheme.onBackground
+            color = colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(Spacing.spaceSm))
@@ -407,7 +415,7 @@ private fun CompletedContent(
         Text(
             text = "You liked $likedCount out of $totalCount tracks",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium),
             textAlign = TextAlign.Center
         )
 
@@ -435,6 +443,7 @@ private fun ErrorContent(
     message: String,
     onRetry: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -452,7 +461,7 @@ private fun ErrorContent(
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold
             ),
-            color = MaterialTheme.colorScheme.onBackground
+            color = colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(Spacing.spaceSm))
@@ -460,7 +469,7 @@ private fun ErrorContent(
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium),
             textAlign = TextAlign.Center
         )
 
