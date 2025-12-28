@@ -3,6 +3,7 @@ package org.ilerna.song_swipe_frontend.presentation.screen.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,14 +15,16 @@ import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.model.UserProfileState
 import org.ilerna.song_swipe_frontend.domain.usecase.LoginUseCase
 import org.ilerna.song_swipe_frontend.domain.usecase.user.GetSpotifyUserProfileUseCase
+import javax.inject.Inject
 
 /**
  * ViewModel for handling login screen state and business logic
  * Updated to support Supabase OAuth flow and Spotify profile fetching
  */
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val getSpotifyUserProfileUseCase: GetSpotifyUserProfileUseCase? = null
+    private val getSpotifyUserProfileUseCase: GetSpotifyUserProfileUseCase
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
@@ -134,13 +137,10 @@ class LoginViewModel(
      * Updates userProfileState with the result
      */
     private fun fetchSpotifyUserProfile() {
-        // Only fetch if use case is available
-        val useCase = getSpotifyUserProfileUseCase ?: return
-        
         viewModelScope.launch {
             _userProfileState.value = UserProfileState.Loading
             
-            when (val result = useCase()) {
+            when (val result = getSpotifyUserProfileUseCase()) {
                 is NetworkResult.Success -> {
                     _userProfileState.value = UserProfileState.Success(result.data)
                 }

@@ -6,12 +6,13 @@ import org.ilerna.song_swipe_frontend.data.datasource.remote.api.SpotifyApi
 import org.ilerna.song_swipe_frontend.data.repository.mapper.PlaylistMapper
 import org.ilerna.song_swipe_frontend.domain.model.Playlist
 import org.ilerna.song_swipe_frontend.domain.repository.PlaylistRepository
+import javax.inject.Inject
 
 /**
  * Implementation of PlaylistRepository
  * Coordinates data from Spotify API and transforms it to domain models
  */
-class PlaylistRepositoryImpl(
+class PlaylistRepositoryImpl @Inject constructor(
     private val spotifyApi: SpotifyApi
 ) : PlaylistRepository {
 

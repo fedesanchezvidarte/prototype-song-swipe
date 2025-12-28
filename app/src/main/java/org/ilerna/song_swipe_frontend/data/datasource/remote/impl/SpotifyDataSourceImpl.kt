@@ -3,12 +3,13 @@ package org.ilerna.song_swipe_frontend.data.datasource.remote.impl
 import org.ilerna.song_swipe_frontend.core.network.ApiResponse
 import org.ilerna.song_swipe_frontend.data.datasource.remote.api.SpotifyApi
 import org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify.SpotifyUserDto
+import javax.inject.Inject
 
 /**
  * Implementation of Spotify data source
  * Handles direct API calls to Spotify Web API
  */
-class SpotifyDataSourceImpl(
+class SpotifyDataSourceImpl @Inject constructor(
     private val spotifyApi: SpotifyApi
 ) {
 
