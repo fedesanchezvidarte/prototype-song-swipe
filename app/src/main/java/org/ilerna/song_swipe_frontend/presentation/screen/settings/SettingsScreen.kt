@@ -45,7 +45,7 @@ fun SettingsScreen(
         Text(
             text = "Settings",
             style = MaterialTheme.typography.headlineMedium,
-            color = colorScheme.primary,
+            color = colorScheme.secondary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = Spacing.spaceMd)
         )

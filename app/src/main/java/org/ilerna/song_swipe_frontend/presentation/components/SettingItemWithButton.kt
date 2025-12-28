@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +30,8 @@ fun SettingItemWithButton(
     description: String,
     buttonText: String,
     onButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -59,18 +58,11 @@ fun SettingItemWithButton(
             )
         }
 
-        // Action Button
-        Button(
+        // Action Button using CompactButton
+        CompactButton(
+            text = buttonText,
             onClick = onButtonClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            )
-        ) {
-            Text(
-                text = buttonText,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+            enabled = enabled
+        )
     }
 }
