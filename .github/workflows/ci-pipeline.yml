@@ -63,43 +63,26 @@ jobs:
           echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Find all test result XML files
-          TEST_FILES=$(find . -name "TEST-*.xml" -path "*/test-results/*" 2>/dev/null)
+          # Find aggregated test result file (avoid counting the same tests multiple times)
+          TEST_FILE=$(find . -path "*/testDebugUnitTest/*" -name "TEST-*.xml" 2>/dev/null | head -1)
           
-          if [ -z "$TEST_FILES" ]; then
-            echo "No test results found" >> $GITHUB_STEP_SUMMARY
+          if [ -z "$TEST_FILE" ]; then
+            echo "⚠️ No test results found" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Searched paths:" >> $GITHUB_STEP_SUMMARY
-            find . -type d -name "test-results" 2>/dev/null | head -5 >> $GITHUB_STEP_SUMMARY || echo "No test-results directories found" >> $GITHUB_STEP_SUMMARY
+            echo "Searched for test result files in:" >> $GITHUB_STEP_SUMMARY
+            find . -type d -name "test-results" 2>/dev/null | head -3 >> $GITHUB_STEP_SUMMARY || echo "No test-results directories found" >> $GITHUB_STEP_SUMMARY
           else
-            TOTAL=0
-            FAILED=0
-            SKIPPED=0
+            echo "Found test results in: $TEST_FILE" >&2
             
-            echo "Processing test results..." >&2
+            # Extract test counts using sed
+            TOTAL=$(sed -n 's/.*tests="\([0-9]*\)".*/\1/p' "$TEST_FILE" | head -1)
+            FAILED=$(sed -n 's/.*failures="\([0-9]*\)".*/\1/p' "$TEST_FILE" | head -1)
+            SKIPPED=$(sed -n 's/.*skipped="\([0-9]*\)".*/\1/p' "$TEST_FILE" | head -1)
             
-            for file in $TEST_FILES; do
-              if [ -f "$file" ]; then
-                echo "Processing: $file" >&2
-                
-                # Extract test counts using sed (more portable than grep -P)
-                TESTS=$(sed -n 's/.*tests="\([0-9]*\)".*/\1/p' "$file" | head -1)
-                FAILURES=$(sed -n 's/.*failures="\([0-9]*\)".*/\1/p' "$file" | head -1)
-                SKIPS=$(sed -n 's/.*skipped="\([0-9]*\)".*/\1/p' "$file" | head -1)
-                
-                # Default to 0 if empty
-                TESTS=${TESTS:-0}
-                FAILURES=${FAILURES:-0}
-                SKIPS=${SKIPS:-0}
-                
-                echo "  Tests: $TESTS, Failures: $FAILURES, Skipped: $SKIPS" >&2
-                
-                TOTAL=$((TOTAL + TESTS))
-                FAILED=$((FAILED + FAILURES))
-                SKIPPED=$((SKIPPED + SKIPS))
-              fi
-            done
-            
+            # Default to 0 if empty
+            TOTAL=${TOTAL:-0}
+            FAILED=${FAILED:-0}
+            SKIPPED=${SKIPPED:-0}
             PASSED=$((TOTAL - FAILED - SKIPPED))
             
             echo "" >> $GITHUB_STEP_SUMMARY
