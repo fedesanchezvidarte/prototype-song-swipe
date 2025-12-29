@@ -7,23 +7,29 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 
 /**
  * Bottom navigation bar component for the main screens.
+ * Uses NavController for type-safe navigation.
  *
- * @param currentRoute The currently selected route
- * @param onItemClick Callback when a navigation item is clicked
+ * @param navController The NavController for navigation
  * @param modifier Modifier for the navigation bar
  */
 @Composable
 fun BottomNavigationBar(
-    currentRoute: String,
-    onItemClick: (BottomNavItem) -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     NavigationBar(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -34,7 +40,21 @@ fun BottomNavigationBar(
 
             NavigationBarItem(
                 selected = isSelected,
-                onClick = { onItemClick(item) },
+                onClick = {
+                    // Avoid navigating to the same destination
+                    if (currentRoute != item.route) {
+                        navController.navigate(item.route) {
+                            // Pop up to the start destination to avoid building up a large stack
+                            popUpTo(Screen.Home.route) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination
+                            launchSingleTop = true
+                            // Restore state when re-selecting a previously selected item
+                            restoreState = true
+                        }
+                    }
+                },
                 icon = {
                     Icon(
                         imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
@@ -65,19 +85,7 @@ fun BottomNavigationBar(
 fun PreviewBottomNavigationBar() {
     SongSwipeTheme {
         BottomNavigationBar(
-            currentRoute = "home",
-            onItemClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewBottomNavigationBarPlaylists() {
-    SongSwipeTheme {
-        BottomNavigationBar(
-            currentRoute = "playlists",
-            onItemClick = {}
+            navController = rememberNavController()
         )
     }
 }

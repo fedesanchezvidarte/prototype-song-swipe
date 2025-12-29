@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SwipeRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +29,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,12 +38,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import org.ilerna.song_swipe_frontend.core.state.UiState
 import org.ilerna.song_swipe_frontend.domain.model.User
 import org.ilerna.song_swipe_frontend.presentation.components.CategoryCard
 import org.ilerna.song_swipe_frontend.presentation.components.GradientCategoryCard
+import org.ilerna.song_swipe_frontend.presentation.components.LoadingIndicator
+import org.ilerna.song_swipe_frontend.presentation.components.PrimaryButton
+import org.ilerna.song_swipe_frontend.presentation.model.MusicCategoryUi
+import org.ilerna.song_swipe_frontend.presentation.model.toUi
 import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonCyan
 import org.ilerna.song_swipe_frontend.presentation.theme.NeonGradientColors
@@ -51,44 +60,25 @@ import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 
 /**
- * Data class representing a music category for the home screen.
- */
-data class MusicCategory(
-    val id: String,
-    val name: String,
-    val color: Color,
-    val gradientColors: List<Color>? = null
-)
-
-/**
  * Home Screen displaying user welcome message and category cards.
+ * Uses HomeViewModel to manage category state.
  *
+ * @param viewModel ViewModel for managing home screen state
  * @param user The current logged-in user
  * @param onCategoryClick Callback when a category card is clicked
+ * @param onSwipeClick Callback when swipe feature card is clicked
  * @param modifier Modifier for the screen
  */
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel,
     user: User?,
-    onCategoryClick: (MusicCategory) -> Unit,
+    onCategoryClick: (MusicCategoryUi) -> Unit,
     onSwipeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val categoriesState by viewModel.categoriesState.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
-
-    // Mock categories for the prototype
-    val categories = listOf(
-        MusicCategory("1", "Pop", NeonPink),
-        MusicCategory("2", "Rock", NeonOrange),
-        MusicCategory("3", "Electronic", NeonCyan, listOf(NeonPurple, NeonCyan)),
-        MusicCategory("4", "Hip Hop", NeonPurple),
-        MusicCategory("5", "Jazz", Color(0xFF1DB954)),
-        MusicCategory("6", "Classical", Color(0xFF8B5CF6)),
-        MusicCategory("7", "R&B", NeonPink, listOf(NeonPink, NeonOrange)),
-        MusicCategory("8", "Country", Color(0xFFD97706)),
-        MusicCategory("9", "Latin", NeonOrange, listOf(NeonOrange, NeonPink)),
-        MusicCategory("10", "Indie", Color(0xFF6366F1))
-    )
 
     Column(
         modifier = modifier
@@ -138,29 +128,98 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(Spacing.spaceMd))
 
-        // Category Grid
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(vertical = Spacing.spaceSm),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.spaceMd),
-            verticalArrangement = Arrangement.spacedBy(Spacing.spaceMd),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(categories) { category ->
-                if (category.gradientColors != null) {
-                    GradientCategoryCard(
-                        title = category.name,
-                        gradientColors = category.gradientColors,
-                        onClick = { onCategoryClick(category) }
-                    )
-                } else {
-                    CategoryCard(
-                        title = category.name,
-                        backgroundColor = category.color,
-                        onClick = { onCategoryClick(category) }
-                    )
+        // Category Content based on state
+        when (val state = categoriesState) {
+            is UiState.Idle, is UiState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingIndicator(message = "Loading categories...")
                 }
             }
+            is UiState.Success -> {
+                val categories = state.data.toUi()
+                CategoryGrid(
+                    categories = categories,
+                    onCategoryClick = onCategoryClick
+                )
+            }
+            is UiState.Error -> {
+                CategoryErrorContent(
+                    message = state.message,
+                    onRetry = { viewModel.refresh() }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Grid of category cards.
+ */
+@Composable
+private fun CategoryGrid(
+    categories: List<MusicCategoryUi>,
+    onCategoryClick: (MusicCategoryUi) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(vertical = Spacing.spaceSm),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.spaceMd),
+        verticalArrangement = Arrangement.spacedBy(Spacing.spaceMd),
+        modifier = modifier.fillMaxSize()
+    ) {
+        items(categories) { category ->
+            if (category.gradientColors != null) {
+                GradientCategoryCard(
+                    title = category.name,
+                    gradientColors = category.gradientColors,
+                    onClick = { onCategoryClick(category) }
+                )
+            } else {
+                CategoryCard(
+                    title = category.name,
+                    backgroundColor = category.color,
+                    onClick = { onCategoryClick(category) }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Error content with retry button.
+ */
+@Composable
+private fun CategoryErrorContent(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = colorScheme.error,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(Spacing.spaceMd))
+            PrimaryButton(
+                text = "Retry",
+                onClick = onRetry,
+                leadingIcon = Icons.Default.Refresh
+            )
         }
     }
 }
@@ -298,29 +357,44 @@ private fun UserHeader(
 /* PREVIEWS */
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewHomeScreen() {
+fun PreviewHomeScreenContent() {
+    // Preview with mock categories directly (no ViewModel)
+    val mockCategories = listOf(
+        MusicCategoryUi("1", "Pop", NeonPink),
+        MusicCategoryUi("2", "Rock", NeonOrange),
+        MusicCategoryUi("3", "Electronic", NeonCyan, listOf(NeonPurple, NeonCyan)),
+        MusicCategoryUi("4", "Hip Hop", NeonPurple)
+    )
+    
     SongSwipeTheme {
-        HomeScreen(
-            user = User(
-                id = "1",
-                email = "user@example.com",
-                displayName = "John Doe",
-                profileImageUrl = null
-            ),
-            onCategoryClick = {},
-            onSwipeClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewHomeScreenNoUser() {
-    SongSwipeTheme {
-        HomeScreen(
-            user = null,
-            onCategoryClick = {},
-            onSwipeClick = {}
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = Spacing.spaceMd)
+        ) {
+            Spacer(modifier = Modifier.height(Spacing.spaceXl))
+            UserHeader(
+                user = User(
+                    id = "1",
+                    email = "user@example.com",
+                    displayName = "John Doe",
+                    profileImageUrl = null
+                )
+            )
+            Spacer(modifier = Modifier.height(Spacing.spaceXl))
+            SwipeFeatureCard(onClick = {})
+            Spacer(modifier = Modifier.height(Spacing.spaceMd))
+            Text(
+                text = "Explore Categories",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(Spacing.spaceMd))
+            CategoryGrid(
+                categories = mockCategories,
+                onCategoryClick = {}
+            )
+        }
     }
 }

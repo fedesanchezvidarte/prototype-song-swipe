@@ -11,30 +11,34 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
  * Sealed class representing bottom navigation items.
- * Each item has a route, title, and icons for selected/unselected states.
+ * Each item has a screen, title, and icons for selected/unselected states.
+ * Uses Screen routes for type-safe navigation.
  */
 sealed class BottomNavItem(
-    val route: String,
+    val screen: Screen,
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
+    /** Route string from the associated Screen */
+    val route: String get() = screen.route
+    
     data object Home : BottomNavItem(
-        route = "home",
+        screen = Screen.Home,
         title = "Home",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home
     )
 
     data object Playlists : BottomNavItem(
-        route = "playlists",
+        screen = Screen.Playlists,
         title = "Playlists",
         selectedIcon = Icons.AutoMirrored.Filled.PlaylistPlay,
         unselectedIcon = Icons.AutoMirrored.Outlined.PlaylistPlay
     )
 
     data object Settings : BottomNavItem(
-        route = "settings",
+        screen = Screen.Settings,
         title = "Settings",
         selectedIcon = Icons.Filled.Settings,
         unselectedIcon = Icons.Outlined.Settings

@@ -4,88 +4,59 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import org.ilerna.song_swipe_frontend.domain.model.User
-import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavItem
+import org.ilerna.song_swipe_frontend.presentation.navigation.AppNavigation
 import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavigationBar
-import org.ilerna.song_swipe_frontend.presentation.screen.home.HomeScreen
-import org.ilerna.song_swipe_frontend.presentation.screen.playlists.PlaylistsScreen
-import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsScreen
+import org.ilerna.song_swipe_frontend.presentation.navigation.Screen
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModel
-import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeScreen
-import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeViewModel
 
 /**
- * App Scaffold with bottom navigation bar.
- * This is the main container that hosts Home, Playlists, Settings ... screens.
+ * App Scaffold with bottom navigation bar and NavHost.
+ * This is the main container that hosts Home, Playlists, Settings, and detail screens.
  *
  * @param user The current logged-in user
  * @param settingsViewModel ViewModel for managing settings state
+ * @param navController NavController for managing navigation (optional, creates one if not provided)
  * @param modifier Modifier for the screen
  */
 @Composable
 fun AppScaffold(
     user: User?,
     settingsViewModel: SettingsViewModel,
-    swipeViewModel: SwipeViewModel,
+    navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
-    var currentRoute by rememberSaveable { mutableStateOf(BottomNavItem.Home.route) }
+    // Get current route to determine if bottom bar should be shown
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    
+    // Only show bottom bar for main screens (not detail screens like Swipe)
+    val showBottomBar = currentRoute in listOf(
+        Screen.Home.route,
+        Screen.Playlists.route,
+        Screen.Settings.route
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            BottomNavigationBar(
-                currentRoute = currentRoute,
-                onItemClick = { item ->
-                    currentRoute = item.route
-                }
-            )
-        }
-    ) { innerPadding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            // Content based on current route
-            when (currentRoute) {
-                BottomNavItem.Home.route -> {
-                    HomeScreen(
-                        user = user,
-                        onCategoryClick = { category ->
-                            // TODO: Navigate to category detail screen
-                        },
-                        onSwipeClick = {
-                            currentRoute = "swipe"
-                        }
-                    )
-                }
-                BottomNavItem.Playlists.route -> {
-                    PlaylistsScreen()
-                }
-                BottomNavItem.Settings.route -> {
-                    SettingsScreen(
-                        viewModel = settingsViewModel
-                    )
-                }
-                "swipe" -> {
-                    SwipeScreen(
-                        viewModel = swipeViewModel,
-                        onNavigateBack = {
-                            currentRoute = BottomNavItem.Home.route
-                        }
-                    )
-                }
+            if (showBottomBar) {
+                BottomNavigationBar(navController = navController)
             }
         }
+    ) { innerPadding ->
+        AppNavigation(
+            navController = navController,
+            user = user,
+            settingsViewModel = settingsViewModel,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }

@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
@@ -25,7 +25,6 @@ import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginViewModel
 import org.ilerna.song_swipe_frontend.presentation.screen.main.AppScaffold
 import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewModel
-import org.ilerna.song_swipe_frontend.presentation.screen.swipe.SwipeViewModel
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import javax.inject.Inject
 
@@ -62,7 +61,6 @@ class MainActivity : ComponentActivity() {
             // Get ViewModels using Hilt
             val loginViewModel: LoginViewModel = hiltViewModel()
             val settingsViewModel: SettingsViewModel = hiltViewModel()
-            val swipeViewModel: SwipeViewModel = hiltViewModel()
             
             val authState by loginViewModel.authState.collectAsState()
             val userProfileState by loginViewModel.userProfileState.collectAsState()
@@ -95,11 +93,10 @@ class MainActivity : ComponentActivity() {
             SongSwipeTheme(themeMode = currentTheme) {
                 when (authState) {
                     is AuthState.Success -> {
-                        // User is logged in, show main app
+                        // User is logged in, show main app with NavController
                         AppScaffold(
                             user = user,
                             settingsViewModel = settingsViewModel,
-                            swipeViewModel = swipeViewModel,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
