@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaDisabled
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 
@@ -32,10 +34,12 @@ import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 fun PlaylistsScreen(
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.background)
             .padding(Spacing.spaceLg),
         contentAlignment = Alignment.Center
     ) {
@@ -48,7 +52,7 @@ fun PlaylistsScreen(
                 imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
                 contentDescription = "Playlists",
                 modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                tint = colorScheme.primary.copy(alpha = ContentAlphaDisabled)
             )
 
             Spacer(modifier = Modifier.height(Spacing.spaceMd))
@@ -59,7 +63,7 @@ fun PlaylistsScreen(
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = MaterialTheme.colorScheme.onBackground
+                color = colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(Spacing.spaceSm))
@@ -68,7 +72,7 @@ fun PlaylistsScreen(
             Text(
                 text = "Your liked songs and created playlists will appear here.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium),
                 textAlign = TextAlign.Center
             )
 
@@ -80,7 +84,7 @@ fun PlaylistsScreen(
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Medium
                 ),
-                color = MaterialTheme.colorScheme.secondary
+                color = colorScheme.secondary
             )
         }
     }

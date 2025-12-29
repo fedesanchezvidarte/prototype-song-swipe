@@ -110,6 +110,9 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.lifecycle.viewmodel.compose)
 
+    // Navigation
+    implementation(libs.navigation.compose)
+
     // Coil for image loading (Compose)
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.ui.text.google.fonts)

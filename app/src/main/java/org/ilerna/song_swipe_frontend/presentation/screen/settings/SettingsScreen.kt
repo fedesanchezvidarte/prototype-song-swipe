@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ThemeMode
 import org.ilerna.song_swipe_frontend.presentation.components.SettingItemWithButton
 import org.ilerna.song_swipe_frontend.presentation.components.SettingItemWithDropdown
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 
@@ -32,19 +33,19 @@ fun SettingsScreen(
 ) {
     val currentTheme by viewModel.currentTheme.collectAsState()
     val isSigningOut by viewModel.isSigningOut.collectAsState()
-    val colors = MaterialTheme.colorScheme
+    val colorScheme = MaterialTheme.colorScheme
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.background)
             .padding(Spacing.spaceLg)
     ) {
         // Header
         Text(
             text = "Settings",
             style = MaterialTheme.typography.headlineMedium,
-            color = colors.primary,
+            color = colorScheme.secondary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = Spacing.spaceMd)
         )

@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 
 /**
  * SettingItemWithDropdown - Generic reusable component for a setting with dropdown selector.
@@ -48,7 +49,7 @@ fun <T> SettingItemWithDropdown(
     contentDescription: String = "Select option",
     modifier: Modifier = Modifier
 ) {
-    val colors = MaterialTheme.colorScheme
+    val colorScheme = MaterialTheme.colorScheme
     var expanded by remember { mutableStateOf(false) }
 
     Row(
@@ -64,13 +65,13 @@ fun <T> SettingItemWithDropdown(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = colors.onSurface,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface.copy(alpha = 0.7f)
+                color = colorScheme.onSurface.copy(alpha = ContentAlphaMedium)
             )
         }
 
@@ -81,12 +82,12 @@ fun <T> SettingItemWithDropdown(
             Text(
                 text = optionLabel(selectedOption),
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.primary
+                color = colorScheme.primary
             )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = contentDescription,
-                tint = colors.primary
+                tint = colorScheme.primary
             )
         }
 

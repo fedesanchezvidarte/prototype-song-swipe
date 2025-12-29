@@ -4,10 +4,12 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.ilerna.song_swipe_frontend.data.repository.impl.CategoryRepositoryImpl
 import org.ilerna.song_swipe_frontend.data.repository.impl.PlaylistRepositoryImpl
 import org.ilerna.song_swipe_frontend.data.repository.impl.SpotifyRepositoryImpl
 import org.ilerna.song_swipe_frontend.data.repository.impl.SupabaseAuthRepository
 import org.ilerna.song_swipe_frontend.domain.repository.AuthRepository
+import org.ilerna.song_swipe_frontend.domain.repository.CategoryRepository
 import org.ilerna.song_swipe_frontend.domain.repository.PlaylistRepository
 import org.ilerna.song_swipe_frontend.domain.repository.SpotifyRepository
 import javax.inject.Singleton
@@ -52,4 +54,14 @@ abstract class RepositoryModule {
     abstract fun bindPlaylistRepository(
         impl: PlaylistRepositoryImpl
     ): PlaylistRepository
+
+    /**
+     * Binds CategoryRepository interface to CategoryRepositoryImpl implementation.
+     * Handles music category operations.
+     */
+    @Binds
+    @Singleton
+    abstract fun bindCategoryRepository(
+        impl: CategoryRepositoryImpl
+    ): CategoryRepository
 }

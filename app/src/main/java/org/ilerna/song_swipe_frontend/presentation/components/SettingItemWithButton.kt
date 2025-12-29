@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 
 /**
  * SettingItemWithButton - Reusable component for a setting with a button action.
@@ -31,9 +30,10 @@ fun SettingItemWithButton(
     description: String,
     buttonText: String,
     onButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
-    val colors = MaterialTheme.colorScheme
+    val colorScheme = MaterialTheme.colorScheme
 
     Row(
         modifier = modifier
@@ -48,28 +48,21 @@ fun SettingItemWithButton(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = colors.onSurface,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface.copy(alpha = 0.7f)
+                color = colorScheme.onSurface.copy(alpha = ContentAlphaMedium)
             )
         }
 
-        // Action Button
-        Button(
+        // Action Button using CompactButton
+        CompactButton(
+            text = buttonText,
             onClick = onButtonClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colors.primary,
-                contentColor = colors.onPrimary
-            )
-        ) {
-            Text(
-                text = buttonText,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+            enabled = enabled
+        )
     }
 }

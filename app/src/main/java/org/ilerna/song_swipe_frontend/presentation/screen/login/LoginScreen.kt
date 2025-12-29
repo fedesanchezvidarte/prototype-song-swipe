@@ -5,24 +5,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,8 +26,9 @@ import androidx.compose.ui.unit.sp
 import org.ilerna.song_swipe_frontend.R
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.presentation.components.AnimatedGradientBorder
+import org.ilerna.song_swipe_frontend.presentation.components.LoadingIndicator
 import org.ilerna.song_swipe_frontend.presentation.components.PrimaryButton
-import org.ilerna.song_swipe_frontend.presentation.theme.NeonGradientColors
+import org.ilerna.song_swipe_frontend.presentation.theme.ContentAlphaMedium
 import org.ilerna.song_swipe_frontend.presentation.theme.Sizes
 import org.ilerna.song_swipe_frontend.presentation.theme.SongSwipeTheme
 import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
@@ -51,10 +46,12 @@ fun LoginScreen(
     onResetState: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(colorScheme.background)
     ) {
         // Animated neon border around the whole screen
         AnimatedGradientBorder(
@@ -82,9 +79,9 @@ fun LoginScreen(
 
                 // Logo shown only when NOT in error state
                 Image(
-                    painter = painterResource(id = R.drawable.songswipe_logo),
+                    painter = painterResource(id = R.drawable.ss_logo_color),
                     contentDescription = "SongSwipe Logo",
-                    modifier = Modifier.size(170.dp)
+                    modifier = Modifier.size(100.dp)
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -95,7 +92,7 @@ fun LoginScreen(
                     is AuthState.Idle -> {
                         Text(
                             text = "Swipe to discover new music!",
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = colorScheme.onBackground,
                             style = MaterialTheme.typography.bodyMedium,
                             fontSize = 14.sp
                         )
@@ -108,7 +105,9 @@ fun LoginScreen(
                     }
 
                     is AuthState.Loading -> {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        LoadingIndicator(
+                            fillMaxSize = false
+                        )
                     }
 
                     // Success state is handled by MainActivity navigation
@@ -129,11 +128,11 @@ private fun LoginScreenError(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val vibrantGradient = Brush.horizontalGradient(colors = NeonGradientColors)
+    val colorScheme = MaterialTheme.colorScheme
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -144,7 +143,7 @@ private fun LoginScreenError(
         ) {
             // PNG Image
             Image(
-                painter = painterResource(id = R.drawable.audio_waves),
+                painter = painterResource(id = R.drawable.ss_logo_gray),
                 contentDescription = "Error Indicator",
                 modifier = Modifier.size(120.dp)
             )
@@ -156,7 +155,7 @@ private fun LoginScreenError(
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = colorScheme.onBackground
                 ),
                 textAlign = TextAlign.Center
             )
@@ -164,13 +163,11 @@ private fun LoginScreenError(
 
             // Error message
             Text(
-                text = if (errorMessage.isNotEmpty()) {
-                    errorMessage
-                } else {
+                text = errorMessage.ifEmpty {
                     "We couldn't complete your login request. Please try again or contact support."
                 },
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    color = colorScheme.onBackground.copy(alpha = ContentAlphaMedium),
                     fontSize = 16.sp
                 ),
                 textAlign = TextAlign.Center,
@@ -178,27 +175,11 @@ private fun LoginScreenError(
             )
             Spacer(modifier = Modifier.height(Spacing.spaceXl))
 
-            // "Back to Login" button with gradient background
-            Button(
-                onClick = onNavigateBack,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Sizes.buttonHeight)
-                    .background(vibrantGradient, MaterialTheme.shapes.extraLarge),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                contentPadding = PaddingValues(
-                    horizontal = Spacing.spaceLg,
-                    vertical = Spacing.spaceSm
-                )
-            ) {
-                Text(
-                    text = "Back to Login",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
+            // Use PrimaryButton component for consistency
+            PrimaryButton(
+                text = "Back to Login",
+                onClick = onNavigateBack
+            )
         }
     }
 }

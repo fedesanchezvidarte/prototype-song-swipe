@@ -78,8 +78,17 @@ val surfaceContainerHighestDark = Color(0xFF2E3636)
 val NeonOrange = Color(0xFFF69752)
 val NeonPink = Color(0xFFF35987)
 val NeonPurple = Color(0xFF736FE7)
-val NeonCyan = Color(0xFF20CBD1)
+val NeonCyan = Color(0xFF70ADB2)
 val NeonGreen = Color(0xFF1DB954)  // Spotify green
 val NeonRed = Color(0xFFFF5252)    // Dislike red
 
 val NeonGradientColors = listOf(NeonOrange, NeonPink, NeonPurple, NeonCyan)
+
+// Color for content on gradient backgrounds
+val OnGradient = Color.White
+
+// Common alpha values for text
+const val ContentAlphaHigh = 1.0f
+const val ContentAlphaMedium = 0.7f
+const val ContentAlphaDisabled = 0.6f
+const val ContentAlphaLow = 0.5f
