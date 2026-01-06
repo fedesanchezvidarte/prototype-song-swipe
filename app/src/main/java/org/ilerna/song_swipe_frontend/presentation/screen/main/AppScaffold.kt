@@ -11,6 +11,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.ilerna.song_swipe_frontend.domain.model.User
+import org.ilerna.song_swipe_frontend.domain.usecase.category.GetCategoryPlaylistsUseCase
+import org.ilerna.song_swipe_frontend.domain.usecase.category.GetFeaturedPlaylistsUseCase
 import org.ilerna.song_swipe_frontend.presentation.navigation.AppNavigation
 import org.ilerna.song_swipe_frontend.presentation.navigation.BottomNavigationBar
 import org.ilerna.song_swipe_frontend.presentation.navigation.Screen
@@ -22,6 +24,8 @@ import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewM
  *
  * @param user The current logged-in user
  * @param settingsViewModel ViewModel for managing settings state
+ * @param getCategoryPlaylistsUseCase Use case for fetching category playlists
+ * @param getFeaturedPlaylistsUseCase Use case for fetching featured playlists
  * @param navController NavController for managing navigation (optional, creates one if not provided)
  * @param modifier Modifier for the screen
  */
@@ -29,6 +33,8 @@ import org.ilerna.song_swipe_frontend.presentation.screen.settings.SettingsViewM
 fun AppScaffold(
     user: User?,
     settingsViewModel: SettingsViewModel,
+    getCategoryPlaylistsUseCase: GetCategoryPlaylistsUseCase,
+    getFeaturedPlaylistsUseCase: GetFeaturedPlaylistsUseCase,
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
@@ -56,6 +62,8 @@ fun AppScaffold(
             navController = navController,
             user = user,
             settingsViewModel = settingsViewModel,
+            getCategoryPlaylistsUseCase = getCategoryPlaylistsUseCase,
+            getFeaturedPlaylistsUseCase = getFeaturedPlaylistsUseCase,
             modifier = Modifier.padding(innerPadding)
         )
     }

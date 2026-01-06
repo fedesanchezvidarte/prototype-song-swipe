@@ -21,6 +21,8 @@ import org.ilerna.song_swipe_frontend.core.auth.SpotifyTokenHolder
 import org.ilerna.song_swipe_frontend.data.datasource.local.preferences.ISpotifyTokenDataStore
 import org.ilerna.song_swipe_frontend.domain.model.AuthState
 import org.ilerna.song_swipe_frontend.domain.model.UserProfileState
+import org.ilerna.song_swipe_frontend.domain.usecase.category.GetCategoryPlaylistsUseCase
+import org.ilerna.song_swipe_frontend.domain.usecase.category.GetFeaturedPlaylistsUseCase
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginScreen
 import org.ilerna.song_swipe_frontend.presentation.screen.login.LoginViewModel
 import org.ilerna.song_swipe_frontend.presentation.screen.main.AppScaffold
@@ -33,6 +35,12 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var spotifyTokenDataStore: ISpotifyTokenDataStore
+
+    @Inject
+    lateinit var getCategoryPlaylistsUseCase: GetCategoryPlaylistsUseCase
+
+    @Inject
+    lateinit var getFeaturedPlaylistsUseCase: GetFeaturedPlaylistsUseCase
     
     // Track the last processed URI to avoid re-processing on recomposition
     private var lastProcessedUri: String? = null
@@ -97,6 +105,8 @@ class MainActivity : ComponentActivity() {
                         AppScaffold(
                             user = user,
                             settingsViewModel = settingsViewModel,
+                            getCategoryPlaylistsUseCase = getCategoryPlaylistsUseCase,
+                            getFeaturedPlaylistsUseCase = getFeaturedPlaylistsUseCase,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

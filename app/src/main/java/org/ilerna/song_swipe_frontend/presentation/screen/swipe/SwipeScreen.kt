@@ -66,6 +66,7 @@ import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
  * Swipe screen for discovering new music by swiping through tracks
  *
  * @param viewModel The SwipeViewModel managing the screen state
+ * @param playlistId Optional playlist ID to load tracks from
  * @param onNavigateBack Callback to navigate back to the previous screen
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,15 +74,16 @@ import org.ilerna.song_swipe_frontend.presentation.theme.Spacing
 fun SwipeScreen(
     viewModel: SwipeViewModel,
     onNavigateBack: () -> Unit,
+    playlistId: String? = null,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
 
     // Load tracks when the screen is first displayed
-    LaunchedEffect(Unit) {
+    LaunchedEffect(playlistId) {
         if (state is SwipeState.Idle) {
-            viewModel.loadTracks()
+            viewModel.loadTracks(playlistId)
         }
     }
 
