@@ -15,7 +15,8 @@ data class MusicCategoryUi(
     val id: String,
     val name: String,
     val color: Color,
-    val gradientColors: List<Color>? = null
+    val gradientColors: List<Color>? = null,
+    val iconUrl: String? = null
 )
 
 /**
@@ -28,7 +29,8 @@ fun MusicCategory.toUi(): MusicCategoryUi {
         id = id,
         name = name,
         color = color,
-        gradientColors = gradient
+        gradientColors = gradient,
+        iconUrl = iconUrl
     )
 }
 

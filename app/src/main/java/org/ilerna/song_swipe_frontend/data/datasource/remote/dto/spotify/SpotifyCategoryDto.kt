@@ -1,0 +1,21 @@
+package org.ilerna.song_swipe_frontend.data.datasource.remote.dto.spotify
+
+import com.google.gson.annotations.SerializedName
+
+/**
+ * DTO for Spotify category object
+ * Represents a browse category returned by the Spotify API
+ */
+data class SpotifyCategoryDto(
+    @SerializedName("id")
+    val id: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("href")
+    val href: String?,
+
+    @SerializedName("icons")
+    val icons: List<SpotifyImageDto>?
+)
